@@ -1,8 +1,9 @@
 use regex::Regex;
 use scraper::ElementRef;
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
-#[derive(Debug)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct CardSet {
     pub id: String,
 
