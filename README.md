@@ -2,6 +2,35 @@
 
 One Piece TCG data scraper written in Rust.
 
+## 🎴 Supported card fields
+
+- [x] id
+- [x] name
+- [x] rarity
+- [x] category
+- [x] set_id (not serialized)
+
+Images:
+- [ ] thumb_url
+- [x] img_url
+- [ ] illustration
+- [ ] illustrator_name
+
+Data values:
+- [x] colors
+- [ ] number
+- [x] life/cost
+- [x] attributes
+- [x] power
+- [x] counter
+
+Text:
+- [ ] types
+- [ ] effect
+- [ ] trigger
+- [ ] notes
+- [ ] copyright
+
 ## 🗺️ Road Map
 
 - [x] Fetch card sets data
