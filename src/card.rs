@@ -1,13 +1,14 @@
 use anyhow::anyhow;
-use scraper::{ElementRef, Html};
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct Card {
     pub id: String,
     pub name: String,
     pub rarity: CardRarity,
     pub category: CardCategory,
     // pub number: i32,
+    #[serde(skip_serializing)]
     pub set_id: String,
     // pub copyright: String,
 
@@ -30,7 +31,7 @@ pub struct Card {
     // pub notes: String,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Deserialize, Serialize)]
 pub enum CardColor {
     Red,
     Green,
@@ -40,7 +41,7 @@ pub enum CardColor {
     Yellow,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Deserialize, Serialize)]
 pub enum CardIllustration {
     Comic,
     Animation,
@@ -48,7 +49,7 @@ pub enum CardIllustration {
     Other,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Deserialize, Serialize)]
 pub enum CardAttribute {
     Slash,
     Strike,
@@ -57,7 +58,7 @@ pub enum CardAttribute {
     Wisdom,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Deserialize, Serialize)]
 pub enum CardCategory {
     Leader,
     Character,
@@ -73,13 +74,13 @@ impl CardCategory {
             "CHARACTER" => Ok(Self::Character),
             "EVENT" => Ok(Self::Event),
             "STAGE" => Ok(Self::Stage),
-            "DOn" => Ok(Self::Don),
+            "DON" => Ok(Self::Don),
             _ => Err(anyhow!("Unsupported category `{}`", value)),
         }
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Deserialize, Serialize)]
 pub enum CardRarity {
     Common = 0,
     Uncommon = 1,
@@ -88,6 +89,8 @@ pub enum CardRarity {
     SecretRare = 4,
     Leader = 5,
     Special = 6,
+    TreasureRare = 7,
+    Promo = 8,
 }
 
 impl CardRarity {
@@ -100,6 +103,8 @@ impl CardRarity {
             "SEC" => Ok(Self::SecretRare),
             "L" => Ok(Self::Leader),
             "SP CARD" => Ok(Self::Special),
+            "TR" => Ok(Self::TreasureRare), // Supposedly added in OP07
+            "P" => Ok(Self::Promo),         // Promo cards (Ultra rare)
             _ => Err(anyhow!("Unsupported rarity `{}`", value)),
         }
     }

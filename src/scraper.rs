@@ -1,6 +1,6 @@
 use anyhow::Context;
 use reqwest::blocking::Client;
-use std::{collections::HashMap, fs, path::PathBuf};
+use std::collections::HashMap;
 
 use crate::{card::Card, card_scraper::CardScraper, card_set::CardSet};
 
@@ -19,7 +19,7 @@ impl OpTcgScraper {
         format!("{}/{}", self.base_url, "cardlist")
     }
 
-    pub fn fetch_all_card_sets(&self, save_to_file: bool) -> Result<Vec<CardSet>, anyhow::Error> {
+    pub fn fetch_all_card_sets(&self) -> Result<Vec<CardSet>, anyhow::Error> {
         let response = reqwest::blocking::get(self.cardlist_endpoint())?.text()?;
 
         let document = scraper::Html::parse_document(&response);
@@ -32,28 +32,8 @@ impl OpTcgScraper {
             .filter(|cs| cs.id != "")
             .collect();
 
-        if save_to_file {
-            Self::write_sets_to_file(&card_sets)?;
-        }
-
         Ok(card_sets)
         // -d "freewords=&series=569201"
-    }
-
-    fn card_sets_file_path() -> PathBuf {
-        PathBuf::from("data/card_sets.json")
-    }
-
-    fn write_sets_to_file(card_sets: &Vec<CardSet>) -> Result<(), anyhow::Error> {
-        let file_path = Self::card_sets_file_path();
-        // info!("write groups to file: `{}`", file_path.to_string_lossy());
-
-        let json = serde_json::to_string(card_sets)?;
-        // debug!("serialize groups: `{:?} -> {}`", groups, json);
-
-        fs::write(file_path, json)?;
-
-        Ok(())
     }
 
     pub fn fetch_all_cards(&self, card_set_id: &str) -> Result<Vec<Card>, anyhow::Error> {
@@ -71,6 +51,7 @@ impl OpTcgScraper {
         let card_ids_sel = scraper::Selector::parse("div.resultCol>a").unwrap();
 
         let mut cards = Vec::new();
+
         for element in document.select(&card_ids_sel) {
             let card_id = element
                 .attr("data-src")

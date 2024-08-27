@@ -1,4 +1,5 @@
 use anyhow::{anyhow, Context};
+use log::info;
 use scraper::{ElementRef, Html};
 
 use crate::card::{Card, CardCategory, CardRarity};
@@ -34,44 +35,51 @@ impl CardScraper {
 
     // element is top level <dl> tag
     pub fn fetch_id(element: ElementRef) -> Result<String, anyhow::Error> {
-        println!("fetch_id");
-        Ok(element
+        let id = element
             .attr("id")
             .context("expected to find id attr on dl")?
-            .to_string())
+            .to_string();
+
+        info!("fetched card_id: {}", id);
+        Ok(id)
     }
 
     pub fn fetch_name(element: ElementRef) -> Result<String, anyhow::Error> {
-        println!("fetch_name");
         let card_name_div = Self::get_child_node(element, "dt>div.cardName".to_string())?;
-        Ok(card_name_div.inner_html())
+        let name = card_name_div.inner_html();
+
+        info!("fetched card_name: {}", name);
+        Ok(name)
     }
 
     pub fn fetch_rarity(element: ElementRef) -> Result<CardRarity, anyhow::Error> {
         let rarity_span =
             Self::get_child_node(element, "dt>div.infoCol>span:nth-child(2)".to_string())?;
         let raw_rarity = rarity_span.inner_html();
+
+        info!("fetched card_rarity (raw): {}", raw_rarity);
         let rarity = CardRarity::from_str(&raw_rarity)?;
         Ok(rarity)
     }
 
     pub fn fetch_category(element: ElementRef) -> Result<CardCategory, anyhow::Error> {
-        println!("fetch_category");
         let category_span =
             Self::get_child_node(element, "dt>div.infoCol>span:nth-child(3)".to_string())?;
         let raw_category = category_span.inner_html();
+
+        info!("fetched card_category (raw): {}", raw_category);
         let category = CardCategory::from_str(&raw_category)?;
         Ok(category)
     }
 
     pub fn fetch_img_url(element: ElementRef) -> Result<String, anyhow::Error> {
-        println!("fetch_img_url");
         let img = Self::get_child_node(element, "dd>div.frontCol>img".to_string())?;
         let img_url = img
             .attr("data-src")
             .context("no data-src attr")?
             .to_string();
 
+        info!("fetched card_img_url: {}", img_url);
         Ok(img_url)
     }
 
@@ -88,7 +96,6 @@ impl CardScraper {
 
     pub fn get_dl_node(document: &Html, card_id: String) -> Result<ElementRef, anyhow::Error> {
         let dl_sel = format!("dl#{}", card_id);
-        println!("{}", dl_sel);
         let dl_sel = scraper::Selector::parse(&dl_sel).unwrap();
         let dl_elem = document.select(&dl_sel).next().unwrap();
 
