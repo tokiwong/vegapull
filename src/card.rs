@@ -18,17 +18,18 @@ pub struct Card {
     // pub illustration: CardIllustration,
     // pub illustrator_name: String,
     // Gameplay
-    // pub colors: Vec<CardColor>,
+    pub colors: Vec<CardColor>,
     // pub life: Option<i32>,              // Only Leader
-    // pub cost: Option<i32>,              // Only Character, Event and Stage
-    // pub attributes: Vec<CardAttribute>, // Only Leader and Character
-    // pub power: Option<i32>,             // Only Leader and Character
-    // pub counter: Option<i32>,           // Only Character
-    //
-    // pub types: Vec<String>,
-    // pub effect: String,
-    // pub trigger: Option<String>,
-    // pub notes: String,
+    // Cost and Life refer to same thing in backend now
+    pub cost: Option<i32>,              // Only Character, Event and Stage
+    pub attributes: Vec<CardAttribute>, // Only Leader and Character
+    pub power: Option<i32>,             // Only Leader and Character
+    pub counter: Option<i32>,           // Only Character
+
+                                        // pub types: Vec<String>,
+                                        // pub effect: String,
+                                        // pub trigger: Option<String>,
+                                        // pub notes: String,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -39,6 +40,20 @@ pub enum CardColor {
     Purple,
     Black,
     Yellow,
+}
+
+impl CardColor {
+    pub fn from_str(value: &str) -> Result<CardColor, anyhow::Error> {
+        match value.to_uppercase().as_str() {
+            "RED" => Ok(Self::Red),
+            "GREEN" => Ok(Self::Green),
+            "BLUE" => Ok(Self::Blue),
+            "PURPLE" => Ok(Self::Purple),
+            "BLACK" => Ok(Self::Black),
+            "YELLOW" => Ok(Self::Yellow),
+            _ => Err(anyhow!("Unsupported color `{}`", value)),
+        }
+    }
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -56,6 +71,19 @@ pub enum CardAttribute {
     Ranged,
     Special,
     Wisdom,
+}
+
+impl CardAttribute {
+    pub fn from_str(value: &str) -> Result<CardAttribute, anyhow::Error> {
+        match value.to_uppercase().as_str() {
+            "SLASH" => Ok(Self::Slash),
+            "STRIKE" => Ok(Self::Strike),
+            "RANGED" => Ok(Self::Ranged),
+            "SPECIAL" => Ok(Self::Special),
+            "WISDOM" => Ok(Self::Wisdom),
+            _ => Err(anyhow!("Unsupported attribute `{}`", value)),
+        }
+    }
 }
 
 #[derive(Debug, Deserialize, Serialize)]

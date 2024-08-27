@@ -1,8 +1,9 @@
 use anyhow::{anyhow, Context};
 use log::info;
+use regex::Regex;
 use scraper::{ElementRef, Html};
 
-use crate::card::{Card, CardCategory, CardRarity};
+use crate::card::{Card, CardAttribute, CardCategory, CardColor, CardRarity};
 
 pub struct CardScraper {}
 
@@ -20,6 +21,11 @@ impl CardScraper {
         let category = Self::fetch_category(dl_elem)?;
         let set_id = set_id.to_string();
         let img_url = Self::fetch_img_url(dl_elem)?;
+        let colors = Self::fetch_colors(dl_elem)?;
+        let cost = Some(Self::fetch_cost(dl_elem)?);
+        let attributes = Self::fetch_attributes(dl_elem)?;
+        let power = Self::fetch_power(dl_elem)?;
+        let counter = Self::fetch_counter(dl_elem)?;
 
         let card = Card {
             id,
@@ -28,6 +34,11 @@ impl CardScraper {
             category,
             set_id,
             img_url,
+            colors,
+            cost,
+            attributes,
+            power,
+            counter,
         };
 
         Ok(card)
@@ -81,6 +92,89 @@ impl CardScraper {
 
         info!("fetched card_img_url: {}", img_url);
         Ok(img_url)
+    }
+
+    fn strip_html_tags(value: &str) -> Result<String, anyhow::Error> {
+        let reg = Regex::new(r"<[^>]*>.*?</[^>]*>")?;
+        let result = reg.replace_all(&value, "").trim().to_string();
+        Ok(result)
+    }
+
+    pub fn fetch_colors(element: ElementRef) -> Result<Vec<CardColor>, anyhow::Error> {
+        let color_div = Self::get_child_node(element, "dd>div.backCol>div.color".to_string())?;
+        let content = color_div.inner_html();
+
+        let raw_color_list = Self::strip_html_tags(&content)?;
+        info!("fetched card_colors_list: {}", raw_color_list);
+
+        let raw_colors: Vec<&str> = raw_color_list.split('/').collect();
+
+        let mut colors = Vec::new();
+        for raw_color in raw_colors.iter() {
+            info!("processing card_color: {}", raw_color);
+            let color = CardColor::from_str(&raw_color)?;
+            colors.push(color);
+        }
+
+        Ok(colors)
+    }
+
+    pub fn fetch_cost(element: ElementRef) -> Result<i32, anyhow::Error> {
+        let cost_div =
+            Self::get_child_node(element, "dd>div.backCol>div.col2>div.cost".to_string())?;
+        let content = cost_div.inner_html();
+
+        let raw_cost = Self::strip_html_tags(&content)?;
+        info!("fetched card_cost (raw): {}", raw_cost);
+
+        let cost: i32 = raw_cost.parse()?;
+        Ok(cost)
+    }
+
+    pub fn fetch_attributes(element: ElementRef) -> Result<Vec<CardAttribute>, anyhow::Error> {
+        let attr_div = Self::get_child_node(
+            element,
+            "dd>div.backCol>div.col2>div.attribute>i".to_string(),
+        )?;
+        let raw_attr = attr_div.inner_html();
+        info!("fetched card_attribute (raw): {}", raw_attr);
+        if raw_attr.is_empty() {
+            return Ok(Vec::new());
+        }
+
+        let attribute = CardAttribute::from_str(&raw_attr)?;
+        Ok(vec![attribute])
+    }
+
+    pub fn fetch_power(element: ElementRef) -> Result<Option<i32>, anyhow::Error> {
+        let power_div =
+            Self::get_child_node(element, "dd>div.backCol>div.col2>div.power".to_string())?;
+        let content = power_div.inner_html();
+
+        let raw_power = Self::strip_html_tags(&content)?;
+        info!("fetched card_power (raw): {}", raw_power);
+        if raw_power == "-" {
+            return Ok(None);
+        }
+
+        let power: i32 = raw_power.parse()?;
+        Ok(Some(power))
+    }
+
+    pub fn fetch_counter(element: ElementRef) -> Result<Option<i32>, anyhow::Error> {
+        let counter_div =
+            Self::get_child_node(element, "dd>div.backCol>div.col2>div.counter".to_string())?;
+        let content = counter_div.inner_html();
+
+        let raw_counter = Self::strip_html_tags(&content)?;
+        info!("fetched card_power (raw): {}", raw_counter);
+
+        if raw_counter == "-" {
+            return Ok(None);
+        }
+
+        let counter: i32 = raw_counter.parse()?;
+        Ok(Some(counter))
     }
 
     fn get_child_node(element: ElementRef, selector: String) -> Result<ElementRef, anyhow::Error> {
