@@ -3,11 +3,15 @@ use scraper::ElementRef;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
+use crate::card::Card;
+
 #[derive(Debug, Deserialize, Serialize)]
 pub struct CardSet {
     pub id: String,
     pub title: String,
     pub label: Option<String>,
+
+    pub cards: Vec<Card>,
 }
 
 impl CardSet {
@@ -19,14 +23,15 @@ impl CardSet {
             id: element.attr("value").unwrap().to_string(),
             title,
             label,
+            cards: Vec::new(),
         }
     }
 
     fn get_label_from_title(title: &str) -> Option<String> {
         let reg = Regex::new(r"\[.*\]").unwrap();
         if let Some(captured) = reg.captures_iter(title).next() {
-            let reference = captured.get(0).map_or("", |m| m.as_str());
-            return Some(reference.to_string());
+            let label = captured.get(0).map_or("", |m| m.as_str());
+            return Some(label.to_string());
         }
 
         None

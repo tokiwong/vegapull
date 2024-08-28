@@ -1,3 +1,6 @@
+use core::fmt;
+use std::fmt::write;
+
 use anyhow::anyhow;
 use serde::{Deserialize, Serialize};
 
@@ -9,11 +12,10 @@ pub struct Card {
     pub category: CardCategory,
     // pub number: i32,
     #[serde(skip_serializing)]
-    pub set_id: String,
+    // pub set_id: String,
     // pub copyright: String,
 
     // Images
-    // pub thumb_url: String,
     pub img_url: String,
     // pub illustration: CardIllustration,
     // pub illustrator_name: String,
@@ -26,10 +28,16 @@ pub struct Card {
     pub power: Option<i32>,             // Only Leader and Character
     pub counter: Option<i32>,           // Only Character
 
-                                        // pub types: Vec<String>,
-                                        // pub effect: String,
-                                        // pub trigger: Option<String>,
-                                        // pub notes: String,
+    pub types: Vec<String>,
+    pub effect: String,
+    pub trigger: Option<String>,
+    // pub notes: String,
+}
+
+impl fmt::Display for Card {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}. `{}`", self.id, self.name)
+    }
 }
 
 #[derive(Debug, Deserialize, Serialize)]
