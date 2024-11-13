@@ -6,6 +6,33 @@ A CLI utility to retrieve data for the One Piece Trading Cards Game (TCG).
 
 For practical reasons, data is kept in a separate repository: https://github.com/Coko7/op-tcg-data
 
+## How to use?
+
+1. Install / build from source:
+```shell
+$ git clone https://github.com/Coko7/vegapull.git
+$ cd vegapull 
+$ cargo build --release
+```
+2. Use
+```shell
+$ ./target/release/vegapull -h
+Dynamically fetch data for the One Piece TCG from official sites.
+
+Usage: vegapull [OPTIONS] <COMMAND>
+
+Commands:
+  packs  Get the list of all existing packs
+  cards  Get all cards within the given pack
+  help   Print this message or the help of the given subcommand(s)
+
+Options:
+  -l, --lang <LANGUAGE>  Language to use for the data [default: english] [possible values: english, japanese]
+  -v, --verbose...       Increase logging verbosity
+  -q, --quiet...         Decrease logging verbosity
+  -h, --help             Print help
+```
+
 ## 🃏 Supported card fields
 
 ```rust
