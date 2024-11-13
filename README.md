@@ -1,6 +1,6 @@
-# 👒 op-tcg-scraper
+# 👒 vegapull
 
-One Piece TCG data scraper written in Rust.
+A CLI utility to retrieve data for the One Piece Trading Cards Game (TCG).
 
 ## Where is the data?
 
@@ -57,5 +57,5 @@ When using `jp` locale to fetch data, the scraper will likely fail when handling
 - [x] Make it locale-agnostic to be able to download data from Japanese and other versions
     - [ ] Handle problems with the `jp` version (inconsistent cards data on official site)
 - [ ] Better configuration 
-- [ ] User friendly CLI
+- [x] User friendly CLI
 - [ ] Add tests
