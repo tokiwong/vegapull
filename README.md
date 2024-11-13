@@ -4,7 +4,7 @@ A CLI utility to retrieve data for the One Piece Trading Cards Game (TCG).
 
 ## Where is the data?
 
-For practical reasons, data is kept in a separate repository: https://github.com/Coko7/op-tcg-data
+For practical reasons, data is kept in a separate repository: https://github.com/Coko7/vegapull-records
 
 ## How to use?
 
@@ -31,6 +31,11 @@ Options:
   -v, --verbose...       Increase logging verbosity
   -q, --quiet...         Decrease logging verbosity
   -h, --help             Print help
+```
+
+3. You can also use the small bash script `pull_all.sh` that uses the `vegapull` CLI to download data for all existing packs:
+```shell
+$ bash pull_all.sh
 ```
 
 ## 🃏 Supported card fields
