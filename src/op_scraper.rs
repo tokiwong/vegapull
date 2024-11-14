@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Context};
+use anyhow::{anyhow, Context, Result};
 use log::{debug, info};
 use reqwest::blocking::Client;
 use std::collections::HashMap;
@@ -30,7 +30,7 @@ impl<'a> OpTcgScraper<'a> {
         full_url
     }
 
-    pub fn fetch_all_packs(&self) -> Result<Vec<Pack>, anyhow::Error> {
+    pub fn fetch_all_packs(&self) -> Result<Vec<Pack>> {
         let url = self.cardlist_endpoint();
         info!("GET `{}`", url);
 
@@ -54,7 +54,7 @@ impl<'a> OpTcgScraper<'a> {
         Ok(packs)
     }
 
-    pub fn fetch_all_cards(&self, pack_id: &str) -> Result<Vec<Card>, anyhow::Error> {
+    pub fn fetch_all_cards(&self, pack_id: &str) -> Result<Vec<Card>> {
         let url = self.cardlist_endpoint();
         info!("GET `{}`", url);
 
@@ -103,7 +103,7 @@ impl<'a> OpTcgScraper<'a> {
         Ok(cards)
     }
 
-    pub fn download_card_image(&self, card: &Card) -> Result<(), anyhow::Error> {
+    pub fn download_card_image(&self, card: &Card) -> Result<()> {
         let full_url = self.get_img_full_url(&card.img_url);
         let img_file_path = op_data::compute_img_file_path(card)?;
         let mut file = std::fs::File::create(img_file_path).unwrap();

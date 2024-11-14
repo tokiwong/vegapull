@@ -1,6 +1,6 @@
 use std::{collections::HashMap, fs, path::PathBuf};
 
-use anyhow::anyhow;
+use anyhow::{Context, Result};
 use log::{debug, info};
 use serde::{Deserialize, Serialize};
 
@@ -53,29 +53,23 @@ impl Localizer {
         Self::reverse_search(&self.rarities, value)
     }
 
-    pub fn load(language: LanguageCode) -> Result<Localizer, anyhow::Error> {
+    pub fn load(language: LanguageCode) -> Result<Localizer> {
         match language {
             LanguageCode::English => Self::load_from_file("en"),
             LanguageCode::Japanese => Self::load_from_file("jp"),
         }
     }
 
-    pub fn load_from_file(locale: &str) -> Result<Localizer, anyhow::Error> {
+    pub fn load_from_file(locale: &str) -> Result<Localizer> {
         let path = format!("./locales/{}.toml", locale);
         let path = PathBuf::from(path);
         info!("load {} locale from: {}", locale, path.to_string_lossy());
 
-        match fs::read_to_string(&path) {
-            Ok(locale_data) => {
-                debug!("loaded {}", locale_data);
-                let localizer: Localizer = toml::from_str(&locale_data)?;
-                Ok(localizer)
-            }
-            Err(e) => Err(anyhow!(
-                "Failed to open locale file `{}`: {}",
-                path.display(),
-                e
-            )),
-        }
+        let locale_data = fs::read_to_string(&path)
+            .with_context(|| format!("Failed to open file: {}", path.display()))?;
+        debug!("loaded {}", locale_data);
+
+        let localizer: Localizer = toml::from_str(&locale_data)?;
+        Ok(localizer)
     }
 }

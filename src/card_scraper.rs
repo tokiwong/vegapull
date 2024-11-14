@@ -1,5 +1,5 @@
-use anyhow::{anyhow, Context};
-use log::{debug, error, trace};
+use anyhow::{anyhow, Context, Result};
+use log::{debug, trace};
 use regex::Regex;
 use scraper::{ElementRef, Html};
 
@@ -11,11 +11,7 @@ use crate::{
 pub struct CardScraper {}
 
 impl CardScraper {
-    pub fn create_card(
-        localizer: &Localizer,
-        document: &Html,
-        card_id: &str,
-    ) -> Result<Card, anyhow::Error> {
+    pub fn create_card(localizer: &Localizer, document: &Html, card_id: &str) -> Result<Card> {
         trace!("start create card: `{}`", card_id);
         let dl_elem = Self::get_dl_node(document, card_id.to_string())?;
 
@@ -54,7 +50,7 @@ impl CardScraper {
     }
 
     // element is top level <dl> tag
-    pub fn fetch_id(element: ElementRef) -> Result<String, anyhow::Error> {
+    pub fn fetch_id(element: ElementRef) -> Result<String> {
         trace!("fetching card.id...");
         let id = element
             .attr("id")
@@ -65,7 +61,7 @@ impl CardScraper {
         Ok(id)
     }
 
-    pub fn fetch_name(element: ElementRef) -> Result<String, anyhow::Error> {
+    pub fn fetch_name(element: ElementRef) -> Result<String> {
         let sel = "dt>div.cardName";
         trace!("fetching card.name ({})...", sel);
 
@@ -75,10 +71,7 @@ impl CardScraper {
         Ok(name)
     }
 
-    pub fn fetch_rarity(
-        localizer: &Localizer,
-        element: ElementRef,
-    ) -> Result<CardRarity, anyhow::Error> {
+    pub fn fetch_rarity(localizer: &Localizer, element: ElementRef) -> Result<CardRarity> {
         let sel = "dt>div.infoCol>span:nth-child(2)";
         trace!("fetching card.rarity ({})...", sel);
 
@@ -91,10 +84,7 @@ impl CardScraper {
         Ok(rarity)
     }
 
-    pub fn fetch_category(
-        localizer: &Localizer,
-        element: ElementRef,
-    ) -> Result<CardCategory, anyhow::Error> {
+    pub fn fetch_category(localizer: &Localizer, element: ElementRef) -> Result<CardCategory> {
         let sel = "dt>div.infoCol>span:nth-child(3)";
         trace!("fetching card.category ({})...", sel);
 
@@ -107,7 +97,7 @@ impl CardScraper {
         Ok(category)
     }
 
-    pub fn fetch_img_url(element: ElementRef) -> Result<String, anyhow::Error> {
+    pub fn fetch_img_url(element: ElementRef) -> Result<String> {
         let sel = "dd>div.frontCol>img";
         trace!("fetching card.img_url ({})...", sel);
 
@@ -121,10 +111,7 @@ impl CardScraper {
         Ok(img_url)
     }
 
-    pub fn fetch_colors(
-        localizer: &Localizer,
-        element: ElementRef,
-    ) -> Result<Vec<CardColor>, anyhow::Error> {
+    pub fn fetch_colors(localizer: &Localizer, element: ElementRef) -> Result<Vec<CardColor>> {
         let sel = "dd>div.backCol>div.color";
         trace!("fetching card.colors ({})...", sel);
 
@@ -145,7 +132,7 @@ impl CardScraper {
         Ok(colors)
     }
 
-    pub fn fetch_cost(element: ElementRef) -> Result<Option<i32>, anyhow::Error> {
+    pub fn fetch_cost(element: ElementRef) -> Result<Option<i32>> {
         let sel = "dd>div.backCol>div.col2>div.cost";
         trace!("fetching card.cost ({})...", sel);
 
@@ -174,7 +161,7 @@ impl CardScraper {
     pub fn fetch_attributes_2(
         localizer: &Localizer,
         element: ElementRef,
-    ) -> Result<Vec<CardAttribute>, anyhow::Error> {
+    ) -> Result<Vec<CardAttribute>> {
         let sel = "dd>div.backCol>div.col2>div.attribute>img";
         trace!("fetching card.attributes ({})...", sel);
 
@@ -207,7 +194,7 @@ impl CardScraper {
     pub fn fetch_attributes(
         localizer: &Localizer,
         element: ElementRef,
-    ) -> Result<Vec<CardAttribute>, anyhow::Error> {
+    ) -> Result<Vec<CardAttribute>> {
         let sel = "dd>div.backCol>div.col2>div.attribute>i";
         trace!("fetching card.attributes ({})...", sel);
 
@@ -232,7 +219,7 @@ impl CardScraper {
         Ok(attributes)
     }
 
-    pub fn fetch_power(element: ElementRef) -> Result<Option<i32>, anyhow::Error> {
+    pub fn fetch_power(element: ElementRef) -> Result<Option<i32>> {
         let sel = "dd>div.backCol>div.col2>div.power";
         trace!("fetching card.power ({})...", sel);
 
@@ -258,7 +245,7 @@ impl CardScraper {
         }
     }
 
-    pub fn fetch_counter(element: ElementRef) -> Result<Option<i32>, anyhow::Error> {
+    pub fn fetch_counter(element: ElementRef) -> Result<Option<i32>> {
         let sel = "dd>div.backCol>div.col2>div.counter";
         trace!("fetching card.counter ({})...", sel);
 
@@ -284,7 +271,7 @@ impl CardScraper {
         }
     }
 
-    pub fn fetch_types(element: ElementRef) -> Result<Vec<String>, anyhow::Error> {
+    pub fn fetch_types(element: ElementRef) -> Result<Vec<String>> {
         let sel = "dd>div.backCol>div.feature";
         trace!("fetching card.types ({})...", sel);
 
@@ -298,7 +285,7 @@ impl CardScraper {
         Ok(types)
     }
 
-    pub fn fetch_effect(element: ElementRef) -> Result<String, anyhow::Error> {
+    pub fn fetch_effect(element: ElementRef) -> Result<String> {
         let sel = "dd>div.backCol>div.text";
         trace!("fetching card.effect ({})...", sel);
 
@@ -309,7 +296,7 @@ impl CardScraper {
         Ok(effect)
     }
 
-    pub fn fetch_trigger(element: ElementRef) -> Result<Option<String>, anyhow::Error> {
+    pub fn fetch_trigger(element: ElementRef) -> Result<Option<String>> {
         let sel = "dd>div.backCol>div.trigger";
         trace!("fetching card.trigger ({})...", sel);
 
@@ -325,13 +312,13 @@ impl CardScraper {
         Ok(None)
     }
 
-    fn strip_html_tags(value: &str) -> Result<String, anyhow::Error> {
+    fn strip_html_tags(value: &str) -> Result<String> {
         let reg = Regex::new(r"<[^>]*>.*?</[^>]*>")?;
         let result = reg.replace_all(&value, "").trim().to_string();
         Ok(result)
     }
 
-    fn get_child_node(element: ElementRef, selector: String) -> Result<ElementRef, anyhow::Error> {
+    fn get_child_node(element: ElementRef, selector: String) -> Result<ElementRef> {
         let node_sel = scraper::Selector::parse(&selector).unwrap();
         let results: Vec<_> = element.select(&node_sel).collect();
 
@@ -342,7 +329,7 @@ impl CardScraper {
         }
     }
 
-    pub fn get_dl_node(document: &Html, card_id: String) -> Result<ElementRef, anyhow::Error> {
+    pub fn get_dl_node(document: &Html, card_id: String) -> Result<ElementRef> {
         let dl_sel = format!("dl#{}", card_id);
         let dl_sel = scraper::Selector::parse(&dl_sel).unwrap();
         let dl_elem = document.select(&dl_sel).next().unwrap();

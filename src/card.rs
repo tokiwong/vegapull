@@ -1,6 +1,6 @@
 use std::fmt;
 
-use anyhow::anyhow;
+use anyhow::{anyhow, Result};
 use serde::{Deserialize, Serialize};
 
 use crate::localizer::Localizer;
@@ -51,14 +51,14 @@ pub enum CardColor {
 }
 
 impl CardColor {
-    pub fn parse(localizer: &Localizer, value: &str) -> Result<CardColor, anyhow::Error> {
+    pub fn parse(localizer: &Localizer, value: &str) -> Result<CardColor> {
         match localizer.match_color(value) {
             Some(key) => Ok(Self::from_str(&key)?),
             None => Err(anyhow!("Failed to match color `{}`", value)),
         }
     }
 
-    pub fn from_str(value: &str) -> Result<CardColor, anyhow::Error> {
+    pub fn from_str(value: &str) -> Result<CardColor> {
         match value {
             "red" => Ok(Self::Red),
             "green" => Ok(Self::Green),
@@ -89,14 +89,14 @@ pub enum CardAttribute {
 }
 
 impl CardAttribute {
-    pub fn parse(localizer: &Localizer, value: &str) -> Result<CardAttribute, anyhow::Error> {
+    pub fn parse(localizer: &Localizer, value: &str) -> Result<CardAttribute> {
         match localizer.match_attribute(value) {
             Some(key) => Ok(Self::from_str(&key)?),
             None => Err(anyhow!("Failed to match attribute `{}`", value)),
         }
     }
 
-    pub fn from_str(value: &str) -> Result<CardAttribute, anyhow::Error> {
+    pub fn from_str(value: &str) -> Result<CardAttribute> {
         match value {
             "slash" => Ok(Self::Slash),
             "strike" => Ok(Self::Strike),
@@ -118,14 +118,14 @@ pub enum CardCategory {
 }
 
 impl CardCategory {
-    pub fn parse(localizer: &Localizer, value: &str) -> Result<CardCategory, anyhow::Error> {
+    pub fn parse(localizer: &Localizer, value: &str) -> Result<CardCategory> {
         match localizer.match_category(value) {
             Some(key) => Ok(Self::from_str(&key)?),
             None => Err(anyhow!("Failed to match category `{}`", value)),
         }
     }
 
-    pub fn from_str(value: &str) -> Result<CardCategory, anyhow::Error> {
+    pub fn from_str(value: &str) -> Result<CardCategory> {
         match value {
             "leader" => Ok(Self::Leader),
             "character" => Ok(Self::Character),
@@ -151,14 +151,14 @@ pub enum CardRarity {
 }
 
 impl CardRarity {
-    pub fn parse(localizer: &Localizer, value: &str) -> Result<CardRarity, anyhow::Error> {
+    pub fn parse(localizer: &Localizer, value: &str) -> Result<CardRarity> {
         match localizer.match_rarity(value) {
             Some(key) => Ok(Self::from_str(&key)?),
             None => Err(anyhow!("Failed to match rarity `{}`", value)),
         }
     }
 
-    pub fn from_str(value: &str) -> Result<CardRarity, anyhow::Error> {
+    pub fn from_str(value: &str) -> Result<CardRarity> {
         match value {
             "common" => Ok(Self::Common),
             "uncommon" => Ok(Self::Uncommon),

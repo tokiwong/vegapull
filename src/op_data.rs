@@ -1,4 +1,4 @@
-use anyhow::Context;
+use anyhow::{Context, Result};
 use chrono::{DateTime, Utc};
 use core::panic;
 use log::{debug, error, info, trace};
@@ -37,7 +37,7 @@ fn data_file_path() -> PathBuf {
     data_dir_path().join("cards.json")
 }
 
-pub fn create_data_dir() -> Result<(), anyhow::Error> {
+pub fn create_data_dir() -> Result<()> {
     let dir = data_dir_path();
     if dir.exists() {
         info!("data dir already exists at `{}`", dir.to_string_lossy());
@@ -52,7 +52,7 @@ pub fn create_data_dir() -> Result<(), anyhow::Error> {
     Ok(())
 }
 
-pub fn get_img_filename(card: &Card) -> Result<String, anyhow::Error> {
+pub fn get_img_filename(card: &Card) -> Result<String> {
     let last_slash_pos = card.img_url.rfind('/').context("expected to find `/`")?;
 
     let img_file_name = match card.img_url.find('?') {
@@ -64,7 +64,7 @@ pub fn get_img_filename(card: &Card) -> Result<String, anyhow::Error> {
     Ok(img_file_name.to_string())
 }
 
-pub fn compute_img_file_path(card: &Card) -> Result<PathBuf, anyhow::Error> {
+pub fn compute_img_file_path(card: &Card) -> Result<PathBuf> {
     let img_filename = get_img_filename(card)?;
     let path = img_dir_path().join(img_filename);
 
@@ -76,7 +76,7 @@ pub fn compute_img_file_path(card: &Card) -> Result<PathBuf, anyhow::Error> {
     Ok(path)
 }
 
-pub fn load_data() -> Result<OnePieceTcgData, anyhow::Error> {
+pub fn load_data() -> Result<OnePieceTcgData> {
     let path = data_file_path();
     info!("load data from: {}", path.to_string_lossy());
 
@@ -92,7 +92,7 @@ pub fn load_data() -> Result<OnePieceTcgData, anyhow::Error> {
     Ok(data)
 }
 
-pub fn write_data(data: &OnePieceTcgData) -> Result<(), anyhow::Error> {
+pub fn write_data(data: &OnePieceTcgData) -> Result<()> {
     create_data_dir()?;
 
     let path = data_file_path();
