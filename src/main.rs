@@ -1,9 +1,10 @@
-use anyhow::Result;
-use chrono::Utc;
+use std::time::Instant;
+
+use anyhow::{anyhow, Result};
 use clap::Parser;
 use cli::Cli;
 use localizer::Localizer;
-use log::info;
+use log::{error, info};
 
 use op_scraper::OpTcgScraper;
 
@@ -21,8 +22,13 @@ fn main() -> Result<()> {
         .filter_level(args.verbose.log_level_filter())
         .init();
 
-    process_args(args)?;
-    Ok(())
+    match process_args(args) {
+        Ok(_) => Ok(()),
+        Err(e) => {
+            error!("{}", e);
+            Err(e)
+        }
+    }
 }
 
 fn process_args(args: Cli) -> Result<()> {
@@ -37,7 +43,7 @@ fn process_args(args: Cli) -> Result<()> {
 
 fn list_packs(scraper: &OpTcgScraper) -> Result<()> {
     info!("fetching all pack ids...");
-    let start_time = Utc::now();
+    let start = Instant::now();
 
     let packs = scraper.fetch_all_packs()?;
     info!("successfully fetched {} packs!", packs.len());
@@ -45,17 +51,22 @@ fn list_packs(scraper: &OpTcgScraper) -> Result<()> {
     let json = serde_json::to_string(&packs)?;
     println!("{}", json);
 
-    let end_time = Utc::now();
+    let duration = start.elapsed();
 
-    info!("Time, start: {}, end: {}", start_time, end_time);
+    info!("list_packs took: {:?}", duration);
     Ok(())
 }
 
 fn list_cards(scraper: &OpTcgScraper, pack_id: &str) -> Result<()> {
     info!("fetching all cards...");
-    let start_time = Utc::now();
+    let start = Instant::now();
 
     let cards = scraper.fetch_all_cards(&pack_id)?;
+    if cards.len() == 0 {
+        error!("No cards available for pack `{}`", pack_id);
+        return Err(anyhow!("No cards found"));
+    }
+
     info!(
         "successfully fetched {} cards for pack: `{}`!",
         cards.len(),
@@ -65,8 +76,8 @@ fn list_cards(scraper: &OpTcgScraper, pack_id: &str) -> Result<()> {
     let json = serde_json::to_string(&cards)?;
     println!("{}", json);
 
-    let end_time = Utc::now();
+    let duration = start.elapsed();
 
-    info!("Time, start: {}, end: {}", start_time, end_time);
+    info!("list_cards took: {:?}", duration);
     Ok(())
 }

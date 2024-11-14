@@ -72,7 +72,7 @@ impl<'a> OpTcgScraper<'a> {
         let document = scraper::Html::parse_document(&response);
 
         let sel = "div.resultCol>a";
-        info!("fetching cards for set `{}` ({})...", pack_id, sel);
+        info!("fetching cards for pack `{}` ({})...", pack_id, sel);
 
         let card_ids_selector = scraper::Selector::parse(sel).unwrap();
 
@@ -99,7 +99,7 @@ impl<'a> OpTcgScraper<'a> {
             };
         }
 
-        info!("processed cards for set `{}`", pack_id);
+        info!("processed cards for pack `{}`", pack_id);
         Ok(cards)
     }
 

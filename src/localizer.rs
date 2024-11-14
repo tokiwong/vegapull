@@ -1,5 +1,6 @@
 use std::{collections::HashMap, fs, path::PathBuf};
 
+use anyhow::anyhow;
 use log::{debug, info};
 use serde::{Deserialize, Serialize};
 
@@ -64,10 +65,17 @@ impl Localizer {
         let path = PathBuf::from(path);
         info!("load {} locale from: {}", locale, path.to_string_lossy());
 
-        let locale_data = fs::read_to_string(path)?;
-        debug!("loaded {}", locale_data);
-
-        let localizer: Localizer = toml::from_str(&locale_data)?;
-        Ok(localizer)
+        match fs::read_to_string(&path) {
+            Ok(locale_data) => {
+                debug!("loaded {}", locale_data);
+                let localizer: Localizer = toml::from_str(&locale_data)?;
+                Ok(localizer)
+            }
+            Err(e) => Err(anyhow!(
+                "Failed to open locale file `{}`: {}",
+                path.display(),
+                e
+            )),
+        }
     }
 }
