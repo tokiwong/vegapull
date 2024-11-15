@@ -1,7 +1,15 @@
 [package]
 name = "vegapull"
 version = "0.1.0"
+authors = ["Coko <91132775+Coko7@users.noreply.github.com>"]
 edition = "2021"
+description = "Command line tool for scraping data for the One Piece Trading Card Game"
+readme = "README.md"
+homepage = "https://github.com/Coko7/vegapull"
+repository = "https://github.com/Coko7/vegapull"
+license = "GPL-3.0-only"
+keywords = ["cli", "one-piece", "tcg", "manga", "scraper"]
+categories = ["command-line-utilities"]
 
 [dependencies]
 anyhow = "1.0.86"
