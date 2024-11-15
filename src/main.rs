@@ -22,13 +22,8 @@ fn main() -> Result<()> {
         .filter_level(args.verbose.log_level_filter())
         .init();
 
-    match process_args(args) {
-        Ok(_) => Ok(()),
-        Err(e) => {
-            error!("{}", e);
-            Err(e)
-        }
-    }
+    process_args(args)?;
+    Ok(())
 }
 
 fn process_args(args: Cli) -> Result<()> {

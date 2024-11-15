@@ -56,6 +56,7 @@ impl Localizer {
     pub fn load(language: LanguageCode) -> Result<Localizer> {
         match language {
             LanguageCode::English => Self::load_from_file("en"),
+            LanguageCode::EnglishAsia => Self::load_from_file("asia_en"),
             LanguageCode::Japanese => Self::load_from_file("jp"),
         }
     }

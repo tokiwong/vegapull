@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+LANGUAGE="english"
 VEGA_DATA=punk-records-data
 
 if [ -d "$VEGA_DATA" ]; then
@@ -15,18 +16,18 @@ fi
 mkdir $VEGA_DATA
 echo -e "Created dir: $VEGA_DATA\n"
 
-echo "VegaPulling the list of packs..."
+echo "VegaPulling the list of packs ($LANGUAGE)..."
 
-./target/release/vegapull packs > $VEGA_DATA/packs.json
+./target/release/vegapull --language $LANGUAGE packs > $VEGA_DATA/packs.json
 COUNT=`jq length $VEGA_DATA/packs.json`
 
 echo -e "Successfully pulled $COUNT packs!\n"
 
 IDX=1
-PACKS=`cat ./packs.json`
+PACKS=`cat $VEGA_DATA/packs.json`
 echo "$PACKS" | jq -r '.[].id' | while read id; do
     echo -n "[$IDX/$COUNT] VagaPulling cards for pack '$id'..."
-    ./target/release/vegapull cards $id > "$VEGA_DATA/cards_$id.json"
+    ./target/release/vegapull --language $LANGUAGE cards $id > "$VEGA_DATA/cards_$id.json"
     echo " OK"
     ((IDX++))
 done

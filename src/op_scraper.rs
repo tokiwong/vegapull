@@ -46,8 +46,8 @@ impl<'a> OpTcgScraper<'a> {
 
         let packs: Vec<Pack> = document
             .select(&series_selector)
-            .map(|x| Pack::new(x))
-            .filter(|cs| cs.id != "")
+            .map(|element| Pack::new(element))
+            .filter(|pack| pack.id != "") // Ignore the "ALL" pack
             .collect();
 
         info!("processed packs");

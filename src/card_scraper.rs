@@ -1,5 +1,5 @@
 use anyhow::{anyhow, Context, Result};
-use log::{debug, trace};
+use log::{debug, error, trace};
 use regex::Regex;
 use scraper::{ElementRef, Html};
 

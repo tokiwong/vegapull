@@ -13,7 +13,7 @@ pub struct Cli {
     pub command: Commands,
 
     /// Language to use for the data
-    #[arg(short, long = "lang", value_name = "LANGUAGE", default_value_t = LanguageCode::English, value_enum)]
+    #[arg(short, long, alias = "lang", value_name = "LANGUAGE", default_value_t = LanguageCode::English, value_enum)]
     pub language: LanguageCode,
 
     // /// Write data to a file instead of stdout
@@ -45,6 +45,8 @@ pub enum Commands {
 pub enum LanguageCode {
     #[value(name = "english", alias = "en")]
     English,
+    #[value(name = "asia-english", alias = "asia-en")]
+    EnglishAsia,
     #[value(name = "japanese", alias = "jp")]
     Japanese,
 }
