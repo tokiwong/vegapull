@@ -8,16 +8,17 @@ use crate::localizer::Localizer;
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Card {
     pub id: String,
+    pub pack_id: String,
     pub name: String,
     pub rarity: CardRarity,
     pub category: CardCategory,
     // pub number: i32,
     // #[serde(skip_serializing)]
-    // pub set_id: String,
     // pub copyright: String,
 
     // Images
     pub img_url: String,
+    pub img_full_url: Option<String>,
     // pub illustration: CardIllustration,
     // pub illustrator_name: String,
 

@@ -55,9 +55,13 @@ impl Localizer {
 
     pub fn load(language: LanguageCode) -> Result<Localizer> {
         match language {
+            LanguageCode::ChineseHongKong => Self::load_from_file("zh_hk"),
+            LanguageCode::ChineseSimplified => Self::load_from_file("zh_cn"),
+            LanguageCode::ChineseTaiwan => Self::load_from_file("zh_tw"),
             LanguageCode::English => Self::load_from_file("en"),
-            LanguageCode::EnglishAsia => Self::load_from_file("asia_en"),
+            LanguageCode::EnglishAsia => Self::load_from_file("en_asia"),
             LanguageCode::Japanese => Self::load_from_file("jp"),
+            LanguageCode::Thai => Self::load_from_file("th"),
         }
     }
 

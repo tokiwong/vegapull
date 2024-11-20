@@ -1,5 +1,6 @@
-use std::ffi::OsString;
+use std::{ffi::OsString, path::PathBuf, str::FromStr};
 
+use anyhow::{bail, Result};
 use clap::{command, Parser, Subcommand, ValueEnum};
 
 #[derive(Debug, Parser)]
@@ -39,14 +40,53 @@ pub enum Commands {
         /// ID of the pack
         pack_id: OsString,
     },
+    /// Launch into interactive mode
+    #[command(alias = "inter", alias = "int")]
+    Interactive,
 }
 
 #[derive(ValueEnum, Copy, Clone, Debug, PartialEq, Eq)]
 pub enum LanguageCode {
+    #[value(name = "chinese-hongkong", alias = "zh_hk", alias = "zh_HK")]
+    ChineseHongKong,
+    #[value(name = "chinese-simplified", alias = "zh_cn", alias = "zh_CN")]
+    ChineseSimplified,
+    #[value(name = "chinese-taiwan", alias = "zh_tw", alias = "zh_TW")]
+    ChineseTaiwan,
     #[value(name = "english", alias = "en")]
     English,
-    #[value(name = "asia-english", alias = "asia-en")]
+    #[value(name = "english-asia", alias = "en-asia")]
     EnglishAsia,
     #[value(name = "japanese", alias = "jp")]
     Japanese,
+    #[value(name = "thai", alias = "th")]
+    Thai,
+}
+
+impl LanguageCode {
+    pub fn to_path(self) -> Result<PathBuf> {
+        let path = match self {
+            LanguageCode::ChineseHongKong => "chinese-hong-kong",
+            LanguageCode::ChineseSimplified => "chinese-simplified",
+            LanguageCode::ChineseTaiwan => "chinese-taiwan",
+            LanguageCode::English => "english",
+            LanguageCode::EnglishAsia => "english-asia",
+            LanguageCode::Japanese => "japanese",
+            LanguageCode::Thai => "thai",
+        };
+
+        Ok(PathBuf::from(path))
+    }
+}
+
+impl FromStr for LanguageCode {
+    type Err = ();
+
+    fn from_str(input: &str) -> Result<Self, Self::Err> {
+        match input {
+            "english" => Ok(LanguageCode::English),
+            "japanese" => Ok(LanguageCode::Japanese),
+            _ => Err(()),
+        }
+    }
 }

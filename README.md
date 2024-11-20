@@ -22,21 +22,26 @@ Dynamically fetch data for the One Piece TCG from official sites.
 Usage: vegapull [OPTIONS] <COMMAND>
 
 Commands:
-  packs  Get the list of all existing packs
-  cards  Get all cards within the given pack
-  help   Print this message or the help of the given subcommand(s)
+  packs        Get the list of all existing packs
+  cards        Get all cards within the given pack
+  interactive  Launch into interactive mode
+  help         Print this message or the help of the given subcommand(s)
 
 Options:
-  -l, --lang <LANGUAGE>  Language to use for the data [default: english] [possible values: english, japanese]
-  -v, --verbose...       Increase logging verbosity
-  -q, --quiet...         Decrease logging verbosity
-  -h, --help             Print help
+  -l, --language <LANGUAGE>  Language to use for the data [default: english] [possible values: chinese-hongkong, chinese-simplified, chinese-taiwan, english, english-asia, japanese, thai]
+  -v, --verbose...           Increase logging verbosity
+  -q, --quiet...             Decrease logging verbosity
+  -h, --help                 Print help
 ```
+**NOTE:** Interactive mode can be used to batch download all JSON data along with the card images.
+The operation takes a long time to complete because there are many images to download and it takes time to download them.
 
 3. You can also use the small bash script `pull_all.sh` that uses the `vegapull` CLI to download data for all existing packs:
 ```shell
 $ bash pull_all.sh
 ```
+The shell script is an alternative to the `vegapull interactive` command which already handles downloading all data.
+Right now, the shell script does not handle the downloading of images.
 
 ## 🃏 Supported card fields
 

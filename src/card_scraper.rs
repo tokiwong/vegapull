@@ -1,5 +1,5 @@
 use anyhow::{anyhow, Context, Result};
-use log::{debug, error, trace};
+use log::{debug, trace};
 use regex::Regex;
 use scraper::{ElementRef, Html};
 
@@ -11,15 +11,23 @@ use crate::{
 pub struct CardScraper {}
 
 impl CardScraper {
-    pub fn create_card(localizer: &Localizer, document: &Html, card_id: &str) -> Result<Card> {
+    pub fn create_card(
+        localizer: &Localizer,
+        document: &Html,
+        card_id: &str,
+        pack_id: &str,
+    ) -> Result<Card> {
         trace!("start create card: `{}`", card_id);
         let dl_elem = Self::get_dl_node(document, card_id.to_string())?;
 
         let id = Self::fetch_id(dl_elem)?;
+        let pack_id = pack_id.to_string();
         let name = Self::fetch_name(dl_elem)?;
         let rarity = Self::fetch_rarity(&localizer, dl_elem)?;
         let category = Self::fetch_category(&localizer, dl_elem)?;
         let img_url = Self::fetch_img_url(dl_elem)?;
+        let img_full_url = None;
+
         let colors = Self::fetch_colors(&localizer, dl_elem)?;
         let cost = Self::fetch_cost(dl_elem)?;
         let attributes = Self::fetch_attributes_2(&localizer, dl_elem)?;
@@ -31,10 +39,12 @@ impl CardScraper {
 
         let card = Card {
             id,
+            pack_id,
             name,
             rarity,
             category,
             img_url,
+            img_full_url,
             colors,
             cost,
             attributes,

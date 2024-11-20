@@ -1,9 +1,9 @@
 use anyhow::{anyhow, Context, Result};
 use log::{debug, info};
-use reqwest::blocking::Client;
+use reqwest::blocking::{Client, Response};
 use std::collections::HashMap;
 
-use crate::{card::Card, card_scraper::CardScraper, localizer::Localizer, op_data, pack::Pack};
+use crate::{card::Card, card_scraper::CardScraper, localizer::Localizer, pack::Pack};
 
 pub struct OpTcgScraper<'a> {
     base_url: String,
@@ -85,8 +85,10 @@ impl<'a> OpTcgScraper<'a> {
 
             let card_id = &card_id[1..];
 
-            match CardScraper::create_card(&self.localizer, &document, &card_id) {
-                Ok(card) => {
+            match CardScraper::create_card(&self.localizer, &document, &card_id, &pack_id) {
+                Ok(mut card) => {
+                    debug!("computing img_full_url for card: {}", card);
+                    card.img_full_url = Some(self.get_img_full_url(&card.img_url));
                     cards.push(card);
                 }
                 Err(error) => {
@@ -103,13 +105,9 @@ impl<'a> OpTcgScraper<'a> {
         Ok(cards)
     }
 
-    pub fn download_card_image(&self, card: &Card) -> Result<()> {
+    pub fn download_card_image(&self, card: &Card) -> Result<Response> {
         let full_url = self.get_img_full_url(&card.img_url);
-        let img_file_path = op_data::compute_img_file_path(card)?;
-        let mut file = std::fs::File::create(img_file_path).unwrap();
-
-        reqwest::blocking::get(full_url)?.copy_to(&mut file)?;
-
-        Ok(())
+        let response = reqwest::blocking::get(full_url)?;
+        Ok(response)
     }
 }
