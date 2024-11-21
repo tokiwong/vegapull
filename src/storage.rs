@@ -33,20 +33,19 @@ impl DataStore {
 
     pub fn get_path(&self, location: StoreLocation) -> Result<PathBuf> {
         let path = match location {
-            StoreLocation::RootDir => &self.root_dir,
-            StoreLocation::LocaleDir => {
-                let locale_path = self.locale.to_path()?;
-                &self.get_path(StoreLocation::RootDir)?.join(locale_path)
-            }
-            StoreLocation::ImagesDir => &self.get_path(StoreLocation::LocaleDir)?.join("images/"),
-            StoreLocation::JsonDir => &self.get_path(StoreLocation::LocaleDir)?.join("json/"),
+            StoreLocation::RootDir => self.root_dir.clone(),
+            StoreLocation::LocaleDir => self
+                .get_path(StoreLocation::RootDir)?
+                .join(self.locale.to_path()),
+            StoreLocation::ImagesDir => self.get_path(StoreLocation::LocaleDir)?.join("images/"),
+            StoreLocation::JsonDir => self.get_path(StoreLocation::LocaleDir)?.join("json/"),
             StoreLocation::PacksListFile => {
-                &self.get_path(StoreLocation::JsonDir)?.join("packs.json")
+                self.get_path(StoreLocation::JsonDir)?.join("packs.json")
             }
-            StoreLocation::CardsFile(pack_id) => &self.get_cards_filename(pack_id)?,
+            StoreLocation::CardsFile(pack_id) => self.get_cards_filename(pack_id)?,
             StoreLocation::ImageFile(card) => {
                 let filename = Self::get_img_filename(card)?;
-                &self.get_path(StoreLocation::ImagesDir)?.join(filename)
+                self.get_path(StoreLocation::ImagesDir)?.join(filename)
             }
         };
 

@@ -73,7 +73,7 @@ pub enum LanguageCode {
 }
 
 impl LanguageCode {
-    pub fn to_path(self) -> Result<PathBuf> {
+    pub fn to_path(self) -> PathBuf {
         let path = match self {
             LanguageCode::ChineseHongKong => "chinese-hong-kong",
             LanguageCode::ChineseSimplified => "chinese-simplified",
@@ -84,7 +84,7 @@ impl LanguageCode {
             LanguageCode::Thai => "thai",
         };
 
-        Ok(PathBuf::from(path))
+        PathBuf::from(path)
     }
 }
 
