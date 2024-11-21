@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Context, Result};
+use anyhow::{anyhow, bail, Context, Result};
 use log::{debug, info};
 use reqwest::blocking::{Client, Response};
 use std::collections::HashMap;
@@ -44,11 +44,17 @@ impl<'a> OpTcgScraper<'a> {
 
         let series_selector = scraper::Selector::parse(sel).unwrap();
 
-        let packs: Vec<Pack> = document
-            .select(&series_selector)
-            .map(|element| Pack::new(element))
-            .filter(|pack| pack.id != "") // Ignore the "ALL" pack
-            .collect();
+        let mut packs = Vec::new();
+        for element in document.select(&series_selector) {
+            match Pack::new(element) {
+                Ok(pack) => {
+                    if pack.id != "" {
+                        packs.push(pack);
+                    }
+                }
+                Err(e) => bail!("failed to scrap data about packs: {}", e),
+            }
+        }
 
         info!("processed packs");
         Ok(packs)
@@ -91,12 +97,8 @@ impl<'a> OpTcgScraper<'a> {
                     card.img_full_url = Some(self.get_img_full_url(&card.img_url));
                     cards.push(card);
                 }
-                Err(error) => {
-                    return Err(anyhow!(
-                        "failed to scrap data about card `{}`: {}",
-                        &card_id,
-                        error
-                    ))
+                Err(e) => {
+                    bail!("failed to scrap data about card `{}`: {}", &card_id, e)
                 }
             };
         }
