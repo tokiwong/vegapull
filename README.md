@@ -1,5 +1,7 @@
 # 👒 vegapull
 
+![build](https://github.com/coko7/vegapull/actions/workflows/rust.yml/badge.svg)
+
 A CLI utility to retrieve data for the One Piece Trading Cards Game (TCG).
 
 ## Where is the data?
