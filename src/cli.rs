@@ -93,8 +93,13 @@ impl FromStr for LanguageCode {
 
     fn from_str(input: &str) -> Result<Self, Self::Err> {
         match input {
+            "chinese-hongkong" => Ok(LanguageCode::ChineseHongKong),
+            "chinese-simplified" => Ok(LanguageCode::ChineseSimplified),
+            "chinese-taiwan" => Ok(LanguageCode::ChineseTaiwan),
             "english" => Ok(LanguageCode::English),
+            "english-asia" => Ok(LanguageCode::EnglishAsia),
             "japanese" => Ok(LanguageCode::Japanese),
+            "thai" => Ok(LanguageCode::Thai),
             _ => Err(()),
         }
     }
