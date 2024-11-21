@@ -1,7 +1,10 @@
 use anyhow::{bail, Context, Result};
 use log::{debug, info, trace};
 use reqwest::blocking::Response;
-use std::{fs, path::PathBuf};
+use std::{
+    fs,
+    path::{Path, PathBuf},
+};
 
 use crate::{card::Card, cli::LanguageCode, pack::Pack};
 
@@ -21,7 +24,7 @@ pub enum StoreLocation<'a> {
 }
 
 impl DataStore {
-    pub fn new(root_dir: &PathBuf, locale: LanguageCode) -> Self {
+    pub fn new(root_dir: &Path, locale: LanguageCode) -> Self {
         DataStore {
             root_dir: root_dir.to_path_buf(),
             locale,
@@ -40,7 +43,7 @@ impl DataStore {
             StoreLocation::PacksListFile => {
                 &self.get_path(StoreLocation::JsonDir)?.join("packs.json")
             }
-            StoreLocation::CardsFile(pack_id) => &self.get_cards_filename(&pack_id)?,
+            StoreLocation::CardsFile(pack_id) => &self.get_cards_filename(pack_id)?,
             StoreLocation::ImageFile(card) => {
                 let filename = Self::get_img_filename(card)?;
                 &self.get_path(StoreLocation::ImagesDir)?.join(filename)
@@ -106,7 +109,7 @@ impl DataStore {
     pub fn write_cards(&self, pack_id: &str, cards: &Vec<Card>) -> Result<()> {
         self.ensure_created(StoreLocation::JsonDir)?;
 
-        let path = self.get_path(StoreLocation::CardsFile(&pack_id))?;
+        let path = self.get_path(StoreLocation::CardsFile(pack_id))?;
         debug!(
             "about to write {} cards from `{}` to file: `{}`",
             cards.len(),

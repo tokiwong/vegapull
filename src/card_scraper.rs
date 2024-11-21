@@ -23,14 +23,14 @@ impl CardScraper {
         let id = Self::fetch_id(dl_elem)?;
         let pack_id = pack_id.to_string();
         let name = Self::fetch_name(dl_elem)?;
-        let rarity = Self::fetch_rarity(&localizer, dl_elem)?;
-        let category = Self::fetch_category(&localizer, dl_elem)?;
+        let rarity = Self::fetch_rarity(localizer, dl_elem)?;
+        let category = Self::fetch_category(localizer, dl_elem)?;
         let img_url = Self::fetch_img_url(dl_elem)?;
         let img_full_url = None;
 
-        let colors = Self::fetch_colors(&localizer, dl_elem)?;
+        let colors = Self::fetch_colors(localizer, dl_elem)?;
         let cost = Self::fetch_cost(dl_elem)?;
-        let attributes = Self::fetch_attributes_2(&localizer, dl_elem)?;
+        let attributes = Self::fetch_attributes(localizer, dl_elem)?;
         let power = Self::fetch_power(dl_elem)?;
         let counter = Self::fetch_counter(dl_elem)?;
         let types = Self::fetch_types(dl_elem)?;
@@ -88,7 +88,7 @@ impl CardScraper {
         let raw_rarity = Self::get_child_node(element, sel.to_string())?.inner_html();
 
         trace!("fetched card.rarity: {}", raw_rarity);
-        let rarity = CardRarity::parse(&localizer, &raw_rarity)?;
+        let rarity = CardRarity::parse(localizer, &raw_rarity)?;
 
         trace!("processed card.rarity");
         Ok(rarity)
@@ -101,7 +101,7 @@ impl CardScraper {
         let raw_category = Self::get_child_node(element, sel.to_string())?.inner_html();
 
         trace!("fetched card.category: {}", raw_category);
-        let category = CardCategory::parse(&localizer, &raw_category)?;
+        let category = CardCategory::parse(localizer, &raw_category)?;
 
         trace!("processed card.category");
         Ok(category)
@@ -134,7 +134,7 @@ impl CardScraper {
         let mut colors = Vec::new();
         for (index, raw_color) in raw_colors.iter().enumerate() {
             trace!("processing card.colors[{}]: {}", index, raw_color);
-            let color = CardColor::parse(localizer, &raw_color)?;
+            let color = CardColor::parse(localizer, raw_color)?;
             colors.push(color);
         }
 
@@ -158,7 +158,7 @@ impl CardScraper {
         match raw_cost.parse::<i32>() {
             Ok(val) => {
                 trace!("processed card.cost");
-                return Ok(Some(val));
+                Ok(Some(val))
             }
             Err(e) => Err(anyhow!(
                 "failed to parse card.cost value `{}`: {}",
@@ -168,7 +168,7 @@ impl CardScraper {
         }
     }
 
-    pub fn fetch_attributes_2(
+    pub fn fetch_attributes(
         localizer: &Localizer,
         element: ElementRef,
     ) -> Result<Vec<CardAttribute>> {
@@ -189,7 +189,7 @@ impl CardScraper {
             let mut attributes = Vec::new();
             for (index, raw_attribute) in raw_attributes.iter().enumerate() {
                 trace!("processing card.attributes[{}]: {}", index, raw_attribute);
-                let attribute = CardAttribute::parse(&localizer, &raw_attribute)?;
+                let attribute = CardAttribute::parse(localizer, raw_attribute)?;
                 attributes.push(attribute);
             }
 
@@ -199,34 +199,6 @@ impl CardScraper {
 
         trace!("card.attributes no img found");
         Ok(Vec::new())
-    }
-
-    pub fn fetch_attributes(
-        localizer: &Localizer,
-        element: ElementRef,
-    ) -> Result<Vec<CardAttribute>> {
-        let sel = "dd>div.backCol>div.col2>div.attribute>i";
-        trace!("fetching card.attributes ({})...", sel);
-
-        let raw_attributes = Self::get_child_node(element, sel.to_string())?.inner_html();
-        trace!("fetched card.attributes: {}", raw_attributes);
-
-        if raw_attributes.is_empty() {
-            trace!("card.attributes empty");
-            return Ok(Vec::new());
-        }
-
-        let raw_attributes: Vec<&str> = raw_attributes.split('/').collect();
-
-        let mut attributes = Vec::new();
-        for (index, raw_attribute) in raw_attributes.iter().enumerate() {
-            trace!("processing card.attributes[{}]: {}", index, raw_attribute);
-            let attribute = CardAttribute::parse(&localizer, &raw_attribute)?;
-            attributes.push(attribute);
-        }
-
-        trace!("processed card.attributes");
-        Ok(attributes)
     }
 
     pub fn fetch_power(element: ElementRef) -> Result<Option<i32>> {
@@ -245,7 +217,7 @@ impl CardScraper {
         match raw_power.parse::<i32>() {
             Ok(val) => {
                 trace!("processed card.power");
-                return Ok(Some(val));
+                Ok(Some(val))
             }
             Err(e) => Err(anyhow!(
                 "failed to parse card.power value `{}`: {}",
@@ -271,7 +243,7 @@ impl CardScraper {
         match raw_counter.parse::<i32>() {
             Ok(val) => {
                 trace!("processed card.counter");
-                return Ok(Some(val));
+                Ok(Some(val))
             }
             Err(e) => Err(anyhow!(
                 "failed to parse card.counter value `{}`: {}",
@@ -324,7 +296,7 @@ impl CardScraper {
 
     fn strip_html_tags(value: &str) -> Result<String> {
         let reg = Regex::new(r"<[^>]*>.*?</[^>]*>")?;
-        let result = reg.replace_all(&value, "").trim().to_string();
+        let result = reg.replace_all(value, "").trim().to_string();
         Ok(result)
     }
 
@@ -334,7 +306,7 @@ impl CardScraper {
 
         match results.len() {
             0 => Err(anyhow!("Expected `{}` but got nothing", selector)),
-            1 => Ok(*results.iter().next().unwrap()),
+            1 => Ok(*results.first().unwrap()),
             _ => Err(anyhow!("Expected single `{}` but got many", selector)),
         }
     }

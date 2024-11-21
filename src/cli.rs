@@ -1,6 +1,6 @@
 use std::{ffi::OsString, path::PathBuf, str::FromStr};
 
-use anyhow::{bail, Result};
+use anyhow::Result;
 use clap::{command, Parser, Subcommand, ValueEnum};
 
 #[derive(Debug, Parser)]

@@ -1,4 +1,4 @@
-use anyhow::{anyhow, bail, Context, Result};
+use anyhow::{bail, Context, Result};
 use log::{debug, info};
 use reqwest::blocking::{Client, Response};
 use std::collections::HashMap;
@@ -48,7 +48,7 @@ impl<'a> OpTcgScraper<'a> {
         for element in document.select(&series_selector) {
             match Pack::new(element) {
                 Ok(pack) => {
-                    if pack.id != "" {
+                    if !pack.id.is_empty() {
                         packs.push(pack);
                     }
                 }
@@ -91,7 +91,7 @@ impl<'a> OpTcgScraper<'a> {
 
             let card_id = &card_id[1..];
 
-            match CardScraper::create_card(&self.localizer, &document, &card_id, &pack_id) {
+            match CardScraper::create_card(self.localizer, &document, card_id, pack_id) {
                 Ok(mut card) => {
                     debug!("computing img_full_url for card: {}", card);
                     card.img_full_url = Some(self.get_img_full_url(&card.img_url));

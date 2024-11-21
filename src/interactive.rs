@@ -20,10 +20,10 @@ pub fn show_interactive() -> Result<()> {
     let input = input_prompt("Enter language (english): ")?;
     info!("user input: {}", input);
 
-    let value = input.is_empty().then(|| "english").unwrap_or(&input);
+    let value = if input.is_empty() { "english" } else { &input };
     info!("value to use: {}", value);
 
-    let language = match LanguageCode::from_str(&value, true) {
+    let language = match LanguageCode::from_str(value, true) {
         Ok(val) => val,
         Err(_) => bail!("Failed to parse language code, invalid value: {}", value),
     };
@@ -33,7 +33,7 @@ pub fn show_interactive() -> Result<()> {
     let input = input_prompt("Enter location to save data (./data): ")?;
     info!("user input: {}", input);
 
-    let value = input.is_empty().then(|| "./data").unwrap_or(&input);
+    let value = if input.is_empty() { "./data" } else { &input };
     info!("value to use: {}", value);
 
     let data_dir = PathBuf::from(&value);
@@ -50,10 +50,10 @@ pub fn show_interactive() -> Result<()> {
         let input = input_prompt(&prompt)?;
         info!("user input: {}", input);
 
-        let value = input.is_empty().then(|| "no").unwrap_or(&input);
+        let value = if input.is_empty() { "no" } else { &input };
         info!("value to use: {}", value);
 
-        if is_yes(&value) {
+        if is_yes(value) {
             println!("Cleared directory: `{}`", data_dir.display());
             fs::remove_dir_all(&data_dir)?;
             info!("removed directory: {}", data_dir.display());
@@ -67,10 +67,10 @@ pub fn show_interactive() -> Result<()> {
     let input = input_prompt("Download images as well (y/N): ")?;
     info!("user input: {}", input);
 
-    let value = input.is_empty().then(|| "no").unwrap_or(&input);
+    let value = if input.is_empty() { "no" } else { &input };
     info!("value to use: {}", value);
 
-    let download_images = is_yes(&value);
+    let download_images = is_yes(value);
 
     let localizer = Localizer::load(language)?;
     let scraper = OpTcgScraper::new(&localizer);
@@ -98,7 +98,7 @@ pub fn show_interactive() -> Result<()> {
         io::stdout().flush()?;
 
         let cards = scraper.fetch_all_cards(&pack.id)?;
-        if cards.len() == 0 {
+        if cards.is_empty() {
             error!("no cards available for pack `{}`", &pack.id);
             bail!("No cards found");
         }
@@ -118,8 +118,8 @@ pub fn show_interactive() -> Result<()> {
                 );
                 io::stdout().flush()?;
 
-                let img_data = scraper.download_card_image(&card)?;
-                store.write_image(&card, img_data)?;
+                let img_data = scraper.download_card_image(card)?;
+                store.write_image(card, img_data)?;
                 println!(" OK");
             }
         }

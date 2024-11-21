@@ -61,7 +61,7 @@ fn download_images(language: LanguageCode, pack_id: &str, output_dir: PathBuf) -
     let start = Instant::now();
 
     let cards = scraper.fetch_all_cards(pack_id)?;
-    if cards.len() == 0 {
+    if cards.is_empty() {
         error!("no cards available for pack `{}`", pack_id);
         bail!("no cards found for pack `{}`", pack_id);
     }
@@ -82,7 +82,7 @@ fn download_images(language: LanguageCode, pack_id: &str, output_dir: PathBuf) -
         let img_filename = DataStore::get_img_filename(card)?;
         let img_path = output_dir.join(img_filename);
 
-        let img_data = scraper.download_card_image(&card)?;
+        let img_data = scraper.download_card_image(card)?;
         DataStore::write_image_to_file(img_data, &img_path)?;
 
         info!(
@@ -125,8 +125,8 @@ fn list_cards(language: LanguageCode, pack_id: &str) -> Result<()> {
     info!("fetching all cards...");
     let start = Instant::now();
 
-    let cards = scraper.fetch_all_cards(&pack_id)?;
-    if cards.len() == 0 {
+    let cards = scraper.fetch_all_cards(pack_id)?;
+    if cards.is_empty() {
         error!("No cards available for pack `{}`", pack_id);
         return Err(anyhow!("No cards found"));
     }
