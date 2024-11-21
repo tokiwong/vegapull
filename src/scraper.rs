@@ -107,6 +107,8 @@ impl<'a> OpTcgScraper<'a> {
 
     pub fn download_card_image(&self, card: &Card) -> Result<Response> {
         let full_url = self.get_img_full_url(&card.img_url);
+
+        debug!("downloading image `{}`...", full_url);
         let response = reqwest::blocking::get(full_url)?;
         Ok(response)
     }

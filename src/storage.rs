@@ -1,5 +1,5 @@
 use anyhow::{bail, Context, Result};
-use log::{info, trace};
+use log::{debug, info, trace};
 use reqwest::blocking::Response;
 use std::{fs, path::PathBuf};
 
@@ -57,7 +57,7 @@ impl DataStore {
         Ok(path)
     }
 
-    fn get_img_filename(card: &Card) -> Result<String> {
+    pub fn get_img_filename(card: &Card) -> Result<String> {
         let last_slash_pos = card.img_url.rfind('/').context("expected to find `/`")?;
 
         let img_file_name = match card.img_url.find('?') {
@@ -65,14 +65,14 @@ impl DataStore {
             None => &card.img_url[last_slash_pos + 1..],
         };
 
-        info!("filename for `{}` is: {}", card.id, img_file_name);
+        debug!("filename for `{}` is: {}", card.id, img_file_name);
         Ok(img_file_name.to_string())
     }
 
     fn ensure_created(&self, location: StoreLocation) -> Result<()> {
         let root_dir = self.get_path(location)?;
         if root_dir.exists() {
-            info!("data dir already exists at `{}`", root_dir.display());
+            debug!("data dir already exists at `{}`", root_dir.display());
             return Ok(());
         }
 
@@ -88,7 +88,7 @@ impl DataStore {
         self.ensure_created(StoreLocation::JsonDir)?;
 
         let path = self.get_path(StoreLocation::PacksListFile)?;
-        info!(
+        debug!(
             "about to write {} packs to file: `{}`",
             packs.len(),
             path.display()
@@ -98,7 +98,7 @@ impl DataStore {
         trace!("serialize data: `{:?} -> {}`", packs, json);
 
         fs::write(path, json)?;
-        info!("wrote packs data to file");
+        debug!("wrote packs data to file");
 
         Ok(())
     }
@@ -107,7 +107,7 @@ impl DataStore {
         self.ensure_created(StoreLocation::JsonDir)?;
 
         let path = self.get_path(StoreLocation::CardsFile(&pack_id))?;
-        info!(
+        debug!(
             "about to write {} cards from `{}` to file: `{}`",
             cards.len(),
             &pack_id,
@@ -118,26 +118,27 @@ impl DataStore {
         trace!("serialize data: `{:?} -> {}`", cards, json);
 
         fs::write(path, json)?;
-        info!("wrote cards data to file");
+        debug!("wrote cards data to file");
 
         Ok(())
     }
 
-    pub fn write_image(&self, card: &Card, mut img_data: Response) -> Result<()> {
-        self.ensure_created(StoreLocation::ImagesDir)?;
-
-        let path = self.get_path(StoreLocation::ImageFile(card))?;
-        info!(
-            "about to save image `{}` packs to file: `{}`",
-            card.img_url,
-            path.display()
-        );
+    pub fn write_image_to_file(mut img_data: Response, path: &PathBuf) -> Result<()> {
+        debug!("about to save image to file: `{}`", path.display());
 
         let mut file = std::fs::File::create(path)?;
 
         img_data.copy_to(&mut file)?;
-        info!("saved image to file");
+        debug!("saved image to file");
 
+        Ok(())
+    }
+
+    pub fn write_image(&self, card: &Card, img_data: Response) -> Result<()> {
+        self.ensure_created(StoreLocation::ImagesDir)?;
+
+        let path = self.get_path(StoreLocation::ImageFile(card))?;
+        Self::write_image_to_file(img_data, &path)?;
         Ok(())
     }
 }

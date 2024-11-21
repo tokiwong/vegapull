@@ -40,8 +40,17 @@ pub enum Commands {
         /// ID of the pack
         pack_id: OsString,
     },
+    /// Download all card images for a given pack
+    #[command(alias = "image", alias = "img")]
+    Images {
+        /// ID of the pack
+        pack_id: OsString,
+        /// Directory where the images should be saved
+        #[arg(short, long = "output-dir")]
+        output_dir: PathBuf,
+    },
     /// Launch into interactive mode
-    #[command(alias = "inter", alias = "int")]
+    #[command(name = "inter", alias = "interactive", alias = "int")]
     Interactive,
 }
 
