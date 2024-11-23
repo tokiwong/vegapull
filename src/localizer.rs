@@ -16,16 +16,6 @@ pub struct Localizer {
     pub rarities: HashMap<String, String>,
 }
 
-// pub enum Locale {
-//     Japanese,
-//     ChineseSimp,
-//     ChineseHK,
-//     ChineseTW,
-//     Thai,
-//     EnglishAsia,
-//     English,
-// }
-
 impl Localizer {
     fn reverse_search(hash_map: &HashMap<String, String>, value: &str) -> Option<String> {
         hash_map.iter().find_map(|(key, val)| {
@@ -76,5 +66,39 @@ impl Localizer {
 
         let localizer: Localizer = toml::from_str(&locale_data)?;
         Ok(localizer)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn get_test_map() -> HashMap<String, String> {
+        let mut map = HashMap::new();
+        map.insert(String::from("foo"), String::from("Toto"));
+        map.insert(String::from("bar"), String::from("Tata"));
+        map.insert(String::from("baz"), String::from("Tutu"));
+
+        map
+    }
+
+    #[test]
+    fn reverse_search_returns_some() {
+        let map = get_test_map();
+
+        let actual = Localizer::reverse_search(&map, "Toto");
+        let expected = Some(String::from("foo"));
+
+        assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn reverse_search_returns_none() {
+        let map = get_test_map();
+
+        let actual = Localizer::reverse_search(&map, "Titi");
+        let expected = None;
+
+        assert_eq!(actual, expected);
     }
 }

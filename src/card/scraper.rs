@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Context, Result};
+use anyhow::{bail, Context, Result};
 use log::{debug, trace};
 use regex::Regex;
 use scraper::{ElementRef, Html};
@@ -160,11 +160,7 @@ impl CardScraper {
                 trace!("processed card.cost");
                 Ok(Some(val))
             }
-            Err(e) => Err(anyhow!(
-                "failed to parse card.cost value `{}`: {}",
-                raw_cost,
-                e
-            )),
+            Err(e) => bail!("failed to parse card.cost value `{}`: {}", raw_cost, e),
         }
     }
 
@@ -219,11 +215,7 @@ impl CardScraper {
                 trace!("processed card.power");
                 Ok(Some(val))
             }
-            Err(e) => Err(anyhow!(
-                "failed to parse card.power value `{}`: {}",
-                raw_power,
-                e
-            )),
+            Err(e) => bail!("failed to parse card.power value `{}`: {}", raw_power, e),
         }
     }
 
@@ -245,11 +237,11 @@ impl CardScraper {
                 trace!("processed card.counter");
                 Ok(Some(val))
             }
-            Err(e) => Err(anyhow!(
+            Err(e) => bail!(
                 "failed to parse card.counter value `{}`: {}",
                 raw_counter,
                 e
-            )),
+            ),
         }
     }
 
@@ -305,9 +297,9 @@ impl CardScraper {
         let results: Vec<_> = element.select(&node_sel).collect();
 
         match results.len() {
-            0 => Err(anyhow!("Expected `{}` but got nothing", selector)),
+            0 => bail!("Expected `{}` but got nothing", selector),
             1 => Ok(*results.first().unwrap()),
-            _ => Err(anyhow!("Expected single `{}` but got many", selector)),
+            _ => bail!("Expected single `{}` but got many", selector),
         }
     }
 

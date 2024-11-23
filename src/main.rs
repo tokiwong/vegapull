@@ -1,6 +1,6 @@
 use std::{fs, path::PathBuf, time::Instant};
 
-use anyhow::{anyhow, bail, Result};
+use anyhow::{bail, Result};
 use clap::Parser;
 use cli::{Cli, LanguageCode};
 use localizer::Localizer;
@@ -10,7 +10,6 @@ use scraper::OpTcgScraper;
 use storage::DataStore;
 
 mod card;
-mod card_scraper;
 mod cli;
 mod interactive;
 mod localizer;
@@ -128,7 +127,7 @@ fn list_cards(language: LanguageCode, pack_id: &str) -> Result<()> {
     let cards = scraper.fetch_all_cards(pack_id)?;
     if cards.is_empty() {
         error!("No cards available for pack `{}`", pack_id);
-        return Err(anyhow!("No cards found"));
+        bail!("No cards found");
     }
 
     info!(

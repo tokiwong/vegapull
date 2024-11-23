@@ -62,8 +62,8 @@ mod tests {
         let title = "Linux is dope";
         let label = None;
 
-        let result = Pack::get_label_from_title(title).unwrap();
-        assert_eq!(result, label);
+        let result = Pack::get_label_from_title(title);
+        assert_eq!(result.unwrap(), label);
     }
 
     #[test]
@@ -71,8 +71,8 @@ mod tests {
         let title = "Linux is dope [Facts]";
         let label = Some("Facts".to_string());
 
-        let result = Pack::get_label_from_title(title).unwrap();
-        assert_eq!(result, label);
+        let result = Pack::get_label_from_title(title);
+        assert_eq!(result.unwrap(), label);
     }
 
     #[test]
@@ -80,8 +80,8 @@ mod tests {
         let title = "Linux is dope [Facts] and I love artichokes [Hmm...]";
         let label = Some("Facts".to_string());
 
-        let result = Pack::get_label_from_title(title).unwrap();
-        assert_eq!(result, label);
+        let result = Pack::get_label_from_title(title);
+        assert_eq!(result.unwrap(), label);
     }
 
     #[test]
@@ -89,15 +89,15 @@ mod tests {
         let original = "TITLE&lt;br class=\"test\"&gt; - gum is yummy - [1]";
         let flattened = "TITLE - gum is yummy - [1]";
 
-        let result = Pack::flatten_title(original).unwrap();
-        assert_eq!(result, flattened);
+        let result = Pack::flatten_title(original);
+        assert_eq!(result.unwrap(), flattened);
     }
 
     #[test]
     fn flatten_title_stays_same() {
         let title = "TITLE - fzf is awesome - [2]";
 
-        let result = Pack::flatten_title(title).unwrap();
-        assert_eq!(result, title);
+        let result = Pack::flatten_title(title);
+        assert_eq!(result.unwrap(), title);
     }
 }

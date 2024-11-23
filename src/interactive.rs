@@ -8,16 +8,23 @@ use std::{
 use anyhow::{bail, Result};
 use clap::ValueEnum;
 use log::{error, info};
+use yansi::Paint;
 
 use crate::{cli::LanguageCode, localizer::Localizer, scraper::OpTcgScraper, storage::DataStore};
 
 pub fn show_interactive() -> Result<()> {
-    println!("+---------------------------+");
-    println!("| VegaPull Interactive Mode |");
-    println!("+---------------------------+\n");
+    println!("{}", "+---------------------------+".yellow());
+    println!(
+        "{} {} {}",
+        "|".yellow(),
+        "VegaPull Interactive Mode".blue().bold(),
+        "|".yellow()
+    );
+    println!("{}", "+---------------------------+\n".yellow());
 
     info!("prompting user for language selection");
-    let input = input_prompt("Enter language (english): ")?;
+    let prompt = format!("Enter language ({}): ", "english".green());
+    let input = input_prompt(&prompt)?;
     info!("user input: {}", input);
 
     let value = if input.is_empty() { "english" } else { &input };
@@ -30,7 +37,8 @@ pub fn show_interactive() -> Result<()> {
     info!("using language: {:?}", language);
 
     info!("prompting user for save location");
-    let input = input_prompt("Enter location to save data (./data): ")?;
+    let prompt = format!("Enter location to save data ({}): ", "./data".green());
+    let input = input_prompt(&prompt)?;
     info!("user input: {}", input);
 
     let value = if input.is_empty() { "./data" } else { &input };
@@ -44,8 +52,10 @@ pub fn show_interactive() -> Result<()> {
         );
 
         let prompt = format!(
-            "Dir `{}` already exists. Replace? (y/N): ",
-            data_dir.display()
+            "Dir `{}` already exists. Replace? ({}/{}): ",
+            data_dir.display(),
+            "y".green(),
+            "N".red()
         );
         let input = input_prompt(&prompt)?;
         info!("user input: {}", input);
@@ -64,7 +74,8 @@ pub fn show_interactive() -> Result<()> {
     }
 
     info!("prompting user whether to download images");
-    let input = input_prompt("Download images as well (y/N): ")?;
+    let prompt = format!("Download images as well ({}/{}): ", "y".green(), "N".red());
+    let input = input_prompt(&prompt)?;
     info!("user input: {}", input);
 
     let value = if input.is_empty() { "no" } else { &input };

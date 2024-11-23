@@ -3,7 +3,11 @@ use log::{debug, info};
 use reqwest::blocking::{Client, Response};
 use std::collections::HashMap;
 
-use crate::{card::Card, card_scraper::CardScraper, localizer::Localizer, pack::Pack};
+use crate::{
+    card::{Card, CardScraper},
+    localizer::Localizer,
+    pack::Pack,
+};
 
 pub struct OpTcgScraper<'a> {
     base_url: String,
