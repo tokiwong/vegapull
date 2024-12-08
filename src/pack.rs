@@ -7,20 +7,69 @@ use std::fmt;
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Pack {
     pub id: String,
-    pub title: String,
-    pub label: Option<String>,
+    pub raw_title: String,
+    pub title_parts: TitleParts,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct TitleParts {
+    prefix: Option<String>,
+    title: String,
+    label: Option<String>,
 }
 
 impl Pack {
     pub fn new(element: ElementRef) -> Result<Self> {
-        let title = Self::flatten_title(&element.inner_html())?;
-        let label = Self::get_label_from_title(&title)?;
+        let raw_title = Self::flatten_title(&element.inner_html())?;
+        let title_parts = Self::process_title_parts(&raw_title)?;
 
         Ok(Self {
             id: element.attr("value").unwrap().to_string(),
-            title,
-            label,
+            raw_title,
+            title_parts,
         })
+    }
+
+    fn process_title_parts(raw_title: &str) -> Result<TitleParts> {
+        let mut processed_title: String = raw_title.to_string();
+
+        let label = Self::get_label_from_title(&raw_title)?;
+        if let Some(ref label) = label {
+            processed_title = Self::remove_label_from_title(&processed_title, &label)?
+                .trim()
+                .to_string();
+        }
+
+        let prefix = Self::get_prefix_from_title(&raw_title)?;
+        if let Some(ref prefix) = prefix {
+            processed_title = processed_title.replace(prefix, "");
+        }
+
+        let prefix = match prefix {
+            Some(val) => Some(val.trim().to_string()),
+            None => None,
+        };
+
+        if processed_title.starts_with("-") {
+            processed_title = processed_title[1..].to_string();
+        }
+
+        if processed_title.ends_with("-") {
+            processed_title = processed_title[..processed_title.len() - 1].to_string();
+        }
+
+        let result = TitleParts {
+            prefix,
+            title: processed_title.to_string(),
+            label,
+        };
+
+        Ok(result)
+    }
+
+    fn remove_label_from_title(title: &str, label: &str) -> Result<String> {
+        let full_label = format!("[{}]", label);
+        Ok(title.replace(&full_label, ""))
     }
 
     fn get_label_from_title(title: &str) -> Result<Option<String>> {
@@ -28,6 +77,21 @@ impl Pack {
         if let Some(captured) = reg.captures(title) {
             if let Some(label) = captured.get(1) {
                 return Ok(Some(label.as_str().to_string()));
+            }
+        }
+
+        Ok(None)
+    }
+
+    fn get_prefix_from_title(title: &str) -> Result<Option<String>> {
+        let reg = Regex::new(r"^(.*?)-.*?-")?;
+        if let Some(captured) = reg.captures(title) {
+            if let Some(prefix) = captured.get(1) {
+                if prefix.is_empty() {
+                    return Ok(None);
+                }
+
+                return Ok(Some(prefix.as_str().to_string()));
             }
         }
 
@@ -47,8 +111,8 @@ impl fmt::Display for Pack {
             f,
             "{}: {} ({})",
             self.id,
-            self.title,
-            self.label.as_ref().unwrap_or(&"".to_string())
+            self.title_parts.title,
+            self.title_parts.label.as_ref().unwrap_or(&"".to_string())
         )
     }
 }
@@ -56,6 +120,62 @@ impl fmt::Display for Pack {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn process_title_parts_returns_all_parts() {
+        let raw_title = "PREFIX -TITLE- [LABEL]";
+        let title_parts = Pack::process_title_parts(raw_title).unwrap();
+
+        let exp_prefix = Some("PREFIX".to_string());
+        let exp_title = "TITLE".to_string();
+        let exp_label = Some("LABEL".to_string());
+
+        assert_eq!(title_parts.prefix, exp_prefix);
+        assert_eq!(title_parts.title, exp_title);
+        assert_eq!(title_parts.label, exp_label);
+    }
+
+    #[test]
+    fn process_title_parts_returns_without_prefix() {
+        let raw_title = "-TITLE- [LABEL]";
+        let title_parts = Pack::process_title_parts(raw_title).unwrap();
+
+        let exp_prefix = None;
+        let exp_title = "TITLE".to_string();
+        let exp_label = Some("LABEL".to_string());
+
+        assert_eq!(title_parts.prefix, exp_prefix);
+        assert_eq!(title_parts.title, exp_title);
+        assert_eq!(title_parts.label, exp_label);
+    }
+
+    #[test]
+    fn process_title_parts_returns_without_label() {
+        let raw_title = "PREFIX -TITLE-";
+        let title_parts = Pack::process_title_parts(raw_title).unwrap();
+
+        let exp_prefix = Some("PREFIX".to_string());
+        let exp_title = "TITLE".to_string();
+        let exp_label = None;
+
+        assert_eq!(title_parts.prefix, exp_prefix);
+        assert_eq!(title_parts.title, exp_title);
+        assert_eq!(title_parts.label, exp_label);
+    }
+
+    #[test]
+    fn process_title_parts_returns_only_title() {
+        let raw_title = "-TITLE-";
+        let title_parts = Pack::process_title_parts(raw_title).unwrap();
+
+        let exp_prefix = None;
+        let exp_title = "TITLE".to_string();
+        let exp_label = None;
+
+        assert_eq!(title_parts.prefix, exp_prefix);
+        assert_eq!(title_parts.title, exp_title);
+        assert_eq!(title_parts.label, exp_label);
+    }
 
     #[test]
     fn get_label_from_title_returns_none() {
