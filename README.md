@@ -11,14 +11,14 @@ For practical reasons, data is kept in a separate repository: https://github.com
 ## How to use?
 
 1. Install / build from source:
-```shell
-$ git clone https://github.com/Coko7/vegapull.git
-$ cd vegapull 
-$ cargo build --release
+```console
+coko7@example:~$ git clone https://github.com/Coko7/vegapull.git
+coko7@example:~$ cd vegapull 
+coko7@example:~$ cargo build --release
 ```
 2. Use
-```shell
-$ ./target/release/vegapull -h
+```console
+coko7@example:~$ vegapull -h
 Dynamically fetch data for the One Piece TCG from official sites.
 
 Usage: vegapull [OPTIONS] <COMMAND>
@@ -38,8 +38,8 @@ Options:
 ```
 
 3. You can also use the small bash script `pull_all.sh` that uses the `vegapull` CLI to download data for all existing packs:
-```shell
-$ bash pull_all.sh
+```console
+coko7@example:~$ bash pull_all.sh
 ```
 
 ## 🃏 Supported card fields
