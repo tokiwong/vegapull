@@ -4,6 +4,8 @@
 
 A CLI utility to retrieve data for the One Piece Trading Cards Game (TCG).
 
+The CLI directly goes against the [onepiece-cardgame.com](https://onepiece-cardgame.com) website and attempts to scrap information such as packs, cards and images.
+
 ## Where is the data?
 
 For practical reasons, data is kept in a separate repository: https://github.com/Coko7/vegapull-records

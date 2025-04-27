@@ -33,22 +33,19 @@ impl Pack {
     fn process_title_parts(raw_title: &str) -> Result<TitleParts> {
         let mut processed_title: String = raw_title.to_string();
 
-        let label = Self::get_label_from_title(&raw_title)?;
+        let label = Self::get_label_from_title(raw_title)?;
         if let Some(ref label) = label {
-            processed_title = Self::remove_label_from_title(&processed_title, &label)?
+            processed_title = Self::remove_label_from_title(&processed_title, label)?
                 .trim()
                 .to_string();
         }
 
-        let prefix = Self::get_prefix_from_title(&raw_title)?;
+        let prefix = Self::get_prefix_from_title(raw_title)?;
         if let Some(ref prefix) = prefix {
             processed_title = processed_title.replace(prefix, "");
         }
 
-        let prefix = match prefix {
-            Some(val) => Some(val.trim().to_string()),
-            None => None,
-        };
+        let prefix = prefix.map(|val| val.trim().to_string());
 
         if processed_title.starts_with("-") {
             processed_title = processed_title[1..].to_string();

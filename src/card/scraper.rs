@@ -122,7 +122,7 @@ impl CardScraper {
     }
 
     pub fn fetch_colors(localizer: &Localizer, element: ElementRef) -> Result<Vec<CardColor>> {
-        let sel = "dd>div.backCol>div.color";
+        let sel = "dd>div.backCol div.color";
         trace!("fetching card.colors ({})...", sel);
 
         let raw_colors = Self::get_child_node(element, sel.to_string())?.inner_html();
