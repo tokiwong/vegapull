@@ -17,13 +17,9 @@ pub struct Cli {
     #[arg(short, long, alias = "lang", value_name = "LANGUAGE", default_value_t = LanguageCode::English, value_enum)]
     pub language: LanguageCode,
 
-    // /// Write data to a file instead of stdout
-    // #[arg(short, long = "output", value_name = "file")]
-    // pub output_file: PathBuf,
-    //
-    /// Outputs information in JSON
-    // #[arg(short = 'j', long = "json")]
-    // pub output_json: bool,
+    /// Specify path to the config directory (where locales are stored)
+    #[arg(short = 'c', long = "config-dir")]
+    pub config_directory_path: Option<PathBuf>,
 
     #[command(flatten)]
     pub verbose: clap_verbosity_flag::Verbosity,
@@ -52,6 +48,9 @@ pub enum Commands {
     /// Launch into interactive mode
     #[command(name = "inter", alias = "interactive", alias = "int")]
     Interactive,
+    /// Test what configuration files are found
+    #[command(name = "test-config", alias = "test-conf")]
+    TestConfig,
 }
 
 #[derive(ValueEnum, Copy, Clone, Debug, PartialEq, Eq)]

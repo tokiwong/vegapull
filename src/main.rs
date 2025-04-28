@@ -1,4 +1,4 @@
-use std::{fs, path::PathBuf, time::Instant};
+use std::{env, fs, path::Path, process::ExitCode, time::Instant};
 
 use anyhow::{bail, Result};
 use clap::Parser;
@@ -17,30 +17,52 @@ mod pack;
 mod scraper;
 mod storage;
 
-fn main() -> Result<()> {
+fn main() -> ExitCode {
     let args = Cli::parse();
     env_logger::Builder::new()
         .filter_level(args.verbose.log_level_filter())
         .init();
 
-    process_args(args)?;
-    Ok(())
-}
-
-fn process_args(args: Cli) -> Result<()> {
-    match args.command {
-        cli::Commands::Packs => list_packs(args.language),
-        cli::Commands::Cards { pack_id } => list_cards(args.language, &pack_id.to_string_lossy()),
-        cli::Commands::Interactive => interactive::show_interactive(),
-        cli::Commands::Images {
-            pack_id,
-            output_dir,
-        } => download_images(args.language, &pack_id.to_string_lossy(), output_dir),
+    match process_args(args) {
+        Ok(_) => ExitCode::SUCCESS,
+        Err(e) => {
+            error!("{}", e);
+            ExitCode::FAILURE
+        }
     }
 }
 
-fn download_images(language: LanguageCode, pack_id: &str, output_dir: PathBuf) -> Result<()> {
-    let localizer = Localizer::load(language)?;
+fn process_args(args: Cli) -> Result<()> {
+    let default_config_dir = env::current_dir()?.join("config");
+    let config_dir = args.config_directory_path.unwrap_or(default_config_dir);
+    info!("using configuration from: {}", config_dir.display());
+
+    match args.command {
+        cli::Commands::Packs => list_packs(&config_dir, args.language),
+        cli::Commands::Cards { pack_id } => {
+            list_cards(&config_dir, args.language, &pack_id.to_string_lossy())
+        }
+        cli::Commands::Interactive => interactive::show_interactive(&config_dir),
+        cli::Commands::Images {
+            pack_id,
+            output_dir,
+        } => download_images(
+            &config_dir,
+            args.language,
+            &pack_id.to_string_lossy(),
+            &output_dir,
+        ),
+        cli::Commands::TestConfig => Localizer::find_locales(&config_dir),
+    }
+}
+
+fn download_images(
+    config_dir: &Path,
+    language: LanguageCode,
+    pack_id: &str,
+    output_dir: &Path,
+) -> Result<()> {
+    let localizer = Localizer::load(config_dir, language)?;
     let scraper = OpTcgScraper::new(&localizer);
 
     if output_dir.exists() {
@@ -51,7 +73,7 @@ fn download_images(language: LanguageCode, pack_id: &str, output_dir: PathBuf) -
         );
     }
 
-    match fs::create_dir_all(&output_dir) {
+    match fs::create_dir_all(output_dir) {
         Ok(_) => info!("successfully created `{}`", output_dir.display()),
         Err(e) => bail!("failed to create `{}`: {}", output_dir.display(), e),
     }
@@ -98,8 +120,8 @@ fn download_images(language: LanguageCode, pack_id: &str, output_dir: PathBuf) -
     Ok(())
 }
 
-fn list_packs(language: LanguageCode) -> Result<()> {
-    let localizer = Localizer::load(language)?;
+fn list_packs(config_dir: &Path, language: LanguageCode) -> Result<()> {
+    let localizer = Localizer::load(config_dir, language)?;
     let scraper = OpTcgScraper::new(&localizer);
 
     info!("fetching all pack ids...");
@@ -117,8 +139,8 @@ fn list_packs(language: LanguageCode) -> Result<()> {
     Ok(())
 }
 
-fn list_cards(language: LanguageCode, pack_id: &str) -> Result<()> {
-    let localizer = Localizer::load(language)?;
+fn list_cards(config_dir: &Path, language: LanguageCode, pack_id: &str) -> Result<()> {
+    let localizer = Localizer::load(config_dir, language)?;
     let scraper = OpTcgScraper::new(&localizer);
 
     info!("fetching all cards...");
