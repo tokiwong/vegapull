@@ -57,19 +57,12 @@ coko7@example:~$ bash scripts/pull-all-gum.sh
 ```
 
 ### Go
-Requires [Go](https://go.dev/) to be installed.
+> Requires [Go](https://go.dev/) to be installed.
 
-#### Pull all packs and cards data
-This concurrently pulls all packs and card images data, then saves them in the `data` directory. **The image folders are zipped to save space.**
 ```console
-go run scripts/pull.go
+➜ go run scripts/pull.go
 ```
 
-#### Unpack the images
-This unzips the images folders in the `data` directory.
-```console
-go run scripts/unpack.go
-```
 
 ## 🃏 Supported card fields
 

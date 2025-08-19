@@ -63,9 +63,16 @@ func main() {
 		log.Fatalf("Failed to pull cards: %v\n", err)
 	}
 
-	err = downloadImages(packs)
+	// Ask if download images.
+	log.Printf("Download card images as well? (y/N) ")
+	confirm, err := reader.ReadString('\n')
 	if err != nil {
-		log.Fatalf("Failed to download images: %v\n", err)
+		log.Fatalf("Input error: %v\n", err)
+	}
+	if strings.HasPrefix(strings.ToLower(strings.TrimSpace(confirm)), "y") {
+		if err := downloadImages(packs); err != nil {
+			log.Fatalf("Failed to download images: %v\n", err)
+		}
 	}
 
 	fmt.Println("Successfully filled the punk records with latest data")
@@ -136,19 +143,6 @@ func downloadImages(packs []Pack) error {
 				return
 			}
 			log.Printf("[%d/%d] Successfully VegaPulled images for: %s (%s) ✅\n", i, len(packs), title, pack.ID)
-			// zip the output directory for easier git storage
-			zipPath := filepath.Join(vegaData, "images", pack.ID+".zip")
-			zipCmd := exec.Command("zip", "-r", zipPath, outputDir)
-			if err := zipCmd.Run(); err != nil {
-				errChan <- fmt.Errorf("failed to zip images for pack %s: %v", pack.ID, err)
-				return
-			}
-			log.Printf("[%d/%d] Successfully zipped images for: %s (%s) to %s\n", i, len(packs), title, pack.ID, zipPath)
-			err := os.RemoveAll(outputDir) // Clean up the directory after zipping
-			if err != nil {
-				errChan <- fmt.Errorf("failed to remove directory %s after zipping: %v", outputDir, err)
-				return
-			}
 		}()
 	}
 	wg.Wait()
