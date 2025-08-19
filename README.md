@@ -46,11 +46,29 @@ Options:
           Print help
 ```
 
-3. You can also use the example bash scripts that directly use the `vegapull` CLI to download data for all existing packs:
+## Helper Scripts
+You can use the example scripts that directly use the `vegapull` CLI to download data for all existing packs:
+
+### Bash
 ```console
 coko7@example:~$ bash scripts/pull-all.sh
 // the `gum` one is more complete but requires some additional tooling to install in your shell:
 coko7@example:~$ bash scripts/pull-all-gum.sh
+```
+
+### Go
+Requires [Go](https://go.dev/) to be installed.
+
+#### Pull all packs and cards data
+This concurrently pulls all packs and card images data, then saves them in the `data` directory. **The image folders are zipped to save space.**
+```console
+go run scripts/pull.go
+```
+
+#### Unpack the images
+This unzips the images folders in the `data` directory.
+```console
+go run scripts/unpack.go
 ```
 
 ## 🃏 Supported card fields
