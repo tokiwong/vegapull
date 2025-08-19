@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 
-LANGUAGE="english"
+LANGUAGE="japanese"
 VEGA_DATA=data/$LANGUAGE
-VEGA_BIN=target/release/vegapull
 
 if [ -d "$VEGA_DATA" ]; then
     read -rp "The $VEGA_DATA is about to be wiped to hold the new data, do you want to proceed? (y/N) " confirm

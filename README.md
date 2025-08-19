@@ -63,7 +63,6 @@ coko7@example:~$ bash scripts/pull-all-gum.sh
 ➜ go run scripts/pull.go
 ```
 
-
 ## 🃏 Supported card fields
 
 ```rust
