@@ -32,6 +32,11 @@ const (
 func main() {
 	reader := bufio.NewReader(os.Stdin)
 
+	_, err := os.Stat(vegaBin)
+	if os.IsNotExist(err) {
+		log.Fatalf("vegapull binary not found at %s. Make sure to compile first with `cargo build --release`", vegaBin)
+	}
+
 	// If data directory exists, ask for confirmation and delete it.
 	if exists(vegaData) {
 		log.Printf("The %s is about to be wiped to hold new data, do you want to proceed? (y/N) ", vegaData)
